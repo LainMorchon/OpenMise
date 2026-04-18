@@ -7,7 +7,14 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.composeHotReload)
+    //alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 kotlin {
@@ -16,7 +23,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -26,34 +33,63 @@ kotlin {
             isStatic = true
         }
     }
-    
-    jvm()
-    
-    js {
-        browser()
-        binaries.executable()
-    }
-    
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-        binaries.executable()
-    }
-    
+
+    jvm() // Desktop
+
+    /* * ¡COMENTADOS TEMPORALMENTE!
+     * Room KMP no soporta Web de forma nativa todavía.
+     * Si necesitas soporte Web, tendrás que extraer la lógica local a un
+     * expect/actual o esperar a las próximas alphas de AndroidX.
+     */
+    // js {
+    //     browser()
+    //     binaries.executable()
+    // }
+    // @OptIn(ExperimentalWasmDsl::class)
+    // wasmJs {
+    //     browser()
+    //     binaries.executable()
+    // }
+
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.compose.uiToolingPreview)
+            implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
-            implementation(libs.compose.uiToolingPreview)
+            // Usa el objeto oficial 'compose' para no depender del TOML
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
+
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.androidx.navigation.compose)
+
+            // Koin
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+
+            // Ktor
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+
+            // Room & SQLite
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.sqlite.bundled)
+
+            // Paging
+            implementation(libs.paging.common)
+            implementation(libs.paging.compose.common)
+
+            // Utils
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -92,8 +128,20 @@ android {
     }
 }
 
+// ESTE BLOQUE ES VITAL.
+// Cada target declarado arriba debe tener su procesador de símbolos (KSP)
+// para que Room genere los archivos DAO por debajo.
 dependencies {
-    debugImplementation(libs.compose.uiTooling)
+    debugImplementation(compose.uiTooling)
+
+    // Generación para common
+    add("kspCommonMainMetadata", libs.androidx.room.compiler)
+
+    // Generación por Target (Faltaba kspJvm)
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+    add("kspJvm", libs.androidx.room.compiler)
 }
 
 compose.desktop {
