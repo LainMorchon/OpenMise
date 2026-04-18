@@ -1,49 +1,28 @@
 package com.morchon.lain
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
-
-import openmise.composeapp.generated.resources.Res
-import openmise.composeapp.generated.resources.compose_multiplatform
+import androidx.compose.runtime.Composable
+import com.morchon.lain.ui.login.LoginScreen
+import com.morchon.lain.ui.login.LoginViewModel
+import org.koin.compose.KoinContext
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-@Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+        // Envolvemos la app en el contexto de Koin
+        KoinContext {
+            // Le pedimos a Koin que nos consiga la instancia del ViewModel
+            val loginViewModel = koinViewModel<LoginViewModel>()
+
+            // Mostramos la pantalla
+            LoginScreen(
+                viewModel = loginViewModel,
+                alNavegarAlHome = {
+                    // Aquí configuraremos el NavHost en el futuro
+                    println("¡Login correcto! Navegando al Home...")
                 }
-            }
+            )
         }
     }
 }

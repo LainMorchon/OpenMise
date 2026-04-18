@@ -3,23 +3,29 @@ package com.morchon.lain
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import com.morchon.lain.data.database.getDatabaseBuilder
+import com.morchon.lain.di.initKoin
+import org.koin.core.context.GlobalContext.getOrNull
+import org.koin.dsl.module
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        // 1. Preparamos el módulo nativo de Android con la BD
+        val androidModule = module {
+            // Construimos la base de datos y la registramos en Koin
+            single { getDatabaseBuilder(applicationContext).build() }
+        }
+
+        // 2. Arrancamos Koin (Solo si no se ha arrancado ya, para evitar crasheos al rotar la pantalla)
+        if (getOrNull() == null) {
+            initKoin(modulosExtra = listOf(androidModule))
+        }
+
+        // 3. Pintamos la UI multiplataforma
         setContent {
             App()
         }
     }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    App()
 }
