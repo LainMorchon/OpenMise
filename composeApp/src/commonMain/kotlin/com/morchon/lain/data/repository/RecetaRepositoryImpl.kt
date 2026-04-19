@@ -19,10 +19,20 @@ class RecetaRepositoryImpl(
         // Usamos los mappers para convertir el objeto de dominio en entidades de Room
         val alimentoBase = receta.aAlimentoEntity()
         val detalle = receta.aDetalleEntity()
-        val ingredientes = receta.aIngredientesEntities()
 
-        // Llamamos a la transacción atómica del DAO
-        recetaDao.guardarRecetaCompleta(alimentoBase, detalle, ingredientes)
+        // 1. Extraemos los AlimentoEntity de cada ingrediente para asegurar integridad referencial
+        val ingredientesAlimentos = receta.ingredientes.map { it.alimento.aAlimentoEntity() }
+
+        // 2. Mapeamos las relaciones de la tabla intermedia
+        val relaciones = receta.aIngredientesEntities()
+
+        // Llamamos a la transacción atómica del DAO con todos los datos necesarios
+        recetaDao.guardarRecetaCompleta(
+            alimento = alimentoBase,
+            detalle = detalle,
+            ingredientesAlimentos = ingredientesAlimentos,
+            relaciones = relaciones
+        )
     }
 
     override fun obtenerTodasLasRecetas(): Flow<List<Alimento>> {

@@ -69,20 +69,26 @@ fun IngredienteConInfo.aDominio(): Ingrediente {
 // ====================================================================
 
 /**
- * Extrae la cabecera (AlimentoEntity) de una Receta.
- * Aquí calculamos los macros totales para cachearlos en la tabla Alimento.
+ * Extrae la cabecera (AlimentoEntity) de un Alimento genérico.
  */
-fun Receta.aAlimentoEntity(): AlimentoEntity {
+fun Alimento.aAlimentoEntity(): AlimentoEntity {
     return AlimentoEntity(
         id = id,
         nombre = nombre,
         origen = origen,
-        // Asumiendo que tu clase Receta tiene métodos o propiedades para el total
         kcal_por_100g = kcalPor100g,
         proteinas_por_100g = proteinasPor100g,
         carbohidratos_por_100g = carbohidratosPor100g,
         grasas_por_100g = grasasPor100g
     )
+}
+
+/**
+ * Extrae la cabecera (AlimentoEntity) de una Receta.
+ * Aquí calculamos los macros totales para cachearlos en la tabla Alimento.
+ */
+fun Receta.aAlimentoEntity(): AlimentoEntity {
+    return (this as Alimento).aAlimentoEntity()
 }
 
 /**

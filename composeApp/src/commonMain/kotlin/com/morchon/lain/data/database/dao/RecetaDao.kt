@@ -19,18 +19,27 @@ interface RecetaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarIngredientes(ingredientes: List<IngredienteRecetaEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertarAlimentos(alimentos: List<AlimentoEntity>)
+
     /**
-     * Guarda una receta completa en las 3 tablas de forma atómica.
+     * Guarda una receta completa en las tablas de forma atómica.
+     * 1. Inserta los alimentos que componen los ingredientes (si no existen).
+     * 2. Inserta la cabecera de la receta.
+     * 3. Inserta el detalle de la receta.
+     * 4. Inserta las relaciones de los ingredientes.
      */
     @Transaction
     suspend fun guardarRecetaCompleta(
         alimento: AlimentoEntity,
         detalle: DetalleRecetaEntity,
-        ingredientes: List<IngredienteRecetaEntity>
+        ingredientesAlimentos: List<AlimentoEntity>,
+        relaciones: List<IngredienteRecetaEntity>
     ) {
+        insertarAlimentos(ingredientesAlimentos)
         insertarAlimento(alimento)
         insertarDetalle(detalle)
-        insertarIngredientes(ingredientes)
+        insertarIngredientes(relaciones)
     }
 
     /**
