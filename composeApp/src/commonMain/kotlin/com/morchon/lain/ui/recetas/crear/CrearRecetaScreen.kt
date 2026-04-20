@@ -155,7 +155,23 @@ fun SeleccionarIngredienteDialog(
         Alimento("1", "Pollo (Pechuga)", "API_RAW", 165f, 31f, 0f, 3.6f),
         Alimento("2", "Arroz Blanco", "API_RAW", 130f, 2.7f, 28f, 0.3f),
         Alimento("3", "Aceite de Oliva", "API_RAW", 884f, 0f, 0f, 100f),
-        Alimento("4", "Huevo", "API_RAW", 155f, 13f, 1.1f, 11f)
+        Alimento("4", "Huevo", "API_RAW", 155f, 13f, 1.1f, 11f),
+        Alimento("5", "Avena", "API_RAW", 389f, 16.9f, 66f, 6.9f),
+        Alimento("6", "Plátano", "API_RAW", 89f, 1.1f, 23f, 0.3f),
+        Alimento("7", "Atún al natural", "API_RAW", 116f, 26f, 0f, 1f),
+        Alimento("8", "Pan Integral", "API_RAW", 247f, 13f, 41f, 3.4f),
+        Alimento("9", "Patata Cocida", "API_RAW", 77f, 2f, 17f, 0.1f),
+        Alimento("10", "Salmón", "API_RAW", 208f, 20f, 0f, 13f),
+        Alimento("11", "Ternera (Magra)", "API_RAW", 250f, 26f, 0f, 15f),
+        Alimento("12", "Tofu", "API_RAW", 76f, 8f, 1.9f, 4.8f),
+        Alimento("13", "Leche Semidesnatada", "API_RAW", 50f, 3.4f, 4.8f, 1.8f),
+        Alimento("14", "Yogur Griego", "API_RAW", 115f, 10f, 4f, 5f),
+        Alimento("15", "Espinacas", "API_RAW", 23f, 2.9f, 3.6f, 0.4f),
+        Alimento("16", "Brócoli", "API_RAW", 34f, 2.8f, 7f, 0.4f),
+        Alimento("17", "Aguacate", "API_RAW", 160f, 2f, 9f, 15f),
+        Alimento("18", "Nueces", "API_RAW", 654f, 15f, 14f, 65f),
+        Alimento("19", "Manzana", "API_RAW", 52f, 0.3f, 14f, 0.2f),
+        Alimento("20", "Pasta Integral", "API_RAW", 348f, 15f, 70f, 3f)
     )
 
     var busqueda by remember { mutableStateOf("") }
