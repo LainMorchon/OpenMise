@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "48d2a8812c2ada3ffb56c95af0143659",
+    "identityHash": "0ed0f2a657cce18c429bd2ad45c3e94f",
     "entities": [
       {
         "tableName": "tabla_usuario",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nombre` TEXT NOT NULL, `email` TEXT NOT NULL, `estaLogeado` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nombre` TEXT NOT NULL, `email` TEXT NOT NULL, `is_active` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -27,8 +27,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "estaLogeado",
-            "columnName": "estaLogeado",
+            "fieldPath": "is_active",
+            "columnName": "is_active",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -241,7 +241,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '48d2a8812c2ada3ffb56c95af0143659')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0ed0f2a657cce18c429bd2ad45c3e94f')"
     ]
   }
 }

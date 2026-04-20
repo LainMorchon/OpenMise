@@ -17,17 +17,29 @@ class UsuarioRepositoryImpl(
     private val usuarioDao: UsuarioDao
 ) : UsuarioRepository {
     override fun obtenerUsuarioActivo(): Flow<Usuario?> {
-        // Usamos .map{} para transformar el flujo de Room en un flujo de Dominio
-        return usuarioDao.obtenerUsuarioActivo().map {
-            entidad -> entidad?.aDominio()
+        return usuarioDao.obtenerUsuarioActivo().map { it?.aDominio() }
+    }
+
+    override fun obtenerTodosLosUsuarios(): Flow<List<Usuario>> {
+        return usuarioDao.obtenerTodosLosUsuarios().map { lista ->
+            lista.map { it.aDominio() }
         }
+    }
+
+    override suspend fun obtenerUsuarioPorEmail(email: String): Usuario? {
+        return usuarioDao.obtenerUsuarioPorEmail(email)?.aDominio()
     }
 
     override suspend fun guardarUsuario(usuario: Usuario) {
         usuarioDao.guardarUsuario(usuario.aEntity())
     }
 
+    override suspend fun setUsuarioActivo(usuarioId: String) {
+        usuarioDao.desactivarTodos()
+        usuarioDao.setEstadoActivo(usuarioId, true)
+    }
+
     override suspend fun cerrarSesion() {
-        usuarioDao.eliminarSesion()
+        usuarioDao.desactivarTodos()
     }
 }

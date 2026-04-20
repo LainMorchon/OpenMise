@@ -9,15 +9,29 @@ import kotlinx.coroutines.flow.Flow
  */
 interface UsuarioRepository {
     /**
-     * Emite el usuario actual. Usamos Flow para que la UI reaccione
-     * automáticamente si el usuario cierra sesión o se actualiza.
+     * Emite el usuario actual.
      */
     fun obtenerUsuarioActivo(): Flow<Usuario?>
 
     /**
-     * Guarda la sesión del usuario (lo implementaremos con Room).
+     * Obtiene la lista de todos los usuarios registrados localmente.
+     */
+    fun obtenerTodosLosUsuarios(): Flow<List<Usuario>>
+
+    /**
+     * Busca un usuario por email.
+     */
+    suspend fun obtenerUsuarioPorEmail(email: String): Usuario?
+
+    /**
+     * Guarda un usuario (Registro/Actualización).
      */
     suspend fun guardarUsuario(usuario: Usuario)
+
+    /**
+     * Marca a un usuario como el "activo" en la sesión.
+     */
+    suspend fun setUsuarioActivo(usuarioId: String)
 
     /**
      * Elimina los datos de sesión local.

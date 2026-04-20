@@ -9,7 +9,7 @@ data class UsuarioEntity (
     @PrimaryKey val id: String,
     val nombre: String,
     val email: String,
-    val estaLogeado: Boolean
+    val is_active: Boolean // Flag para la sesión actual
 )
 
 // Función de extensión (Mapper) para convertir de Entity (Data) a Modelo (Dominio)
@@ -18,7 +18,7 @@ fun UsuarioEntity.aDominio(): Usuario {
         id = id,
         nombre = nombre,
         email = email,
-        estaLogeado = estaLogeado
+        estaLogeado = is_active
     )
 }
 
@@ -28,6 +28,6 @@ fun Usuario.aEntity(): UsuarioEntity {
         id = id,
         nombre = nombre,
         email = email,
-        estaLogeado = estaLogeado
+        is_active = estaLogeado
     )
 }

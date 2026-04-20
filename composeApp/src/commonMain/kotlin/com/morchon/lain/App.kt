@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.morchon.lain.ui.core.navigation.Rutas
 import com.morchon.lain.ui.home.HomeScreen
 import com.morchon.lain.ui.login.LoginScreen
+import com.morchon.lain.ui.registro.RegistroScreen
 import com.morchon.lain.ui.recetas.crear.CrearRecetaScreen
 import com.morchon.lain.ui.recetas.detalle.DetalleRecetaScreen
 import com.morchon.lain.ui.recetas.listado.ListadoRecetasScreen
@@ -34,11 +35,20 @@ fun App() {
                     LoginScreen(
                         viewModel = loginViewModel,
                         alNavegarAlHome = {
-                            // Viajamos al Home y destruimos el Login para no poder volver atrás con el botón "Back"
                             navController.navigate(Rutas.Home.ruta) {
                                 popUpTo(Rutas.Login.ruta) { inclusive = true }
                             }
+                        },
+                        alNavegarAlRegistro = {
+                            navController.navigate(Rutas.Registro.ruta)
                         }
+                    )
+                }
+
+                // PANTALLA DE REGISTRO
+                composable(Rutas.Registro.ruta) {
+                    RegistroScreen(
+                        onNavigateBack = { navController.popBackStack() }
                     )
                 }
 

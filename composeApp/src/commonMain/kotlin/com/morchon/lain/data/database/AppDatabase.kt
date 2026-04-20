@@ -16,7 +16,7 @@ import com.morchon.lain.data.database.entity.AlimentoEntity
         DetalleRecetaEntity::class,
         IngredienteRecetaEntity::class
     ],
-    version = 2
+    version = 3
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun usuarioDao(): UsuarioDao

@@ -16,4 +16,7 @@ fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
         context = appContext,
         name = dbFile.absolutePath
     )
+    // TODO: Eliminar fallbackToDestructiveMigration antes de lanzar a producción para evitar pérdida de datos
+    .fallbackToDestructiveMigrationOnDowngrade(true)
+    .fallbackToDestructiveMigration(true)
 }

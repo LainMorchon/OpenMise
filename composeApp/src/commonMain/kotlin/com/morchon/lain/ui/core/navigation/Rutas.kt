@@ -12,4 +12,5 @@ sealed class Rutas(val ruta: String) {
     data object DetalleReceta : Rutas("detalle_receta/{recetaId}") {
         fun crearRuta(recetaId: String) = "detalle_receta/$recetaId"
     }
+    data object Registro : Rutas("registro")
 }
