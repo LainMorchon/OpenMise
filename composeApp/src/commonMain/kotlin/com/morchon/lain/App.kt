@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.morchon.lain.ui.core.navigation.Rutas
 import com.morchon.lain.ui.home.HomeScreen
+import com.morchon.lain.ui.home.HomeViewModel
 import com.morchon.lain.ui.login.LoginScreen
 import com.morchon.lain.ui.registro.RegistroScreen
 import com.morchon.lain.ui.recetas.crear.CrearRecetaScreen
@@ -54,9 +55,16 @@ fun App() {
 
                 // PANTALLA 2: HOME
                 composable(Rutas.Home.ruta) {
+                    val homeViewModel = koinViewModel<HomeViewModel>()
                     HomeScreen(
+                        viewModel = homeViewModel,
                         alNavegarRecetario = { navController.navigate(Rutas.Recetario.ruta) },
-                        alNavegarCrearReceta = { navController.navigate(Rutas.CrearReceta.ruta) }
+                        alNavegarCrearReceta = { navController.navigate(Rutas.CrearReceta.ruta) },
+                        alCerrarSesion = {
+                            navController.navigate(Rutas.Login.ruta) {
+                                popUpTo(Rutas.Home.ruta) { inclusive = true }
+                            }
+                        }
                     )
                 }
 

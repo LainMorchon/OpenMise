@@ -1,0 +1,247 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "0ed0f2a657cce18c429bd2ad45c3e94f",
+    "entities": [
+      {
+        "tableName": "tabla_usuario",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nombre` TEXT NOT NULL, `email` TEXT NOT NULL, `is_active` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "is_active",
+            "columnName": "is_active",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "Alimento",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nombre` TEXT NOT NULL, `origen` TEXT NOT NULL, `kcal_por_100g` REAL NOT NULL, `proteinas_por_100g` REAL NOT NULL, `carbohidratos_por_100g` REAL NOT NULL, `grasas_por_100g` REAL NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "origen",
+            "columnName": "origen",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kcal_por_100g",
+            "columnName": "kcal_por_100g",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "proteinas_por_100g",
+            "columnName": "proteinas_por_100g",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "carbohidratos_por_100g",
+            "columnName": "carbohidratos_por_100g",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "grasas_por_100g",
+            "columnName": "grasas_por_100g",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "Detalle_Receta",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`alimento_id` TEXT NOT NULL, `usuario_id` TEXT NOT NULL, `descripcion` TEXT NOT NULL, `pasos_preparacion` TEXT, `enlace_url` TEXT, PRIMARY KEY(`alimento_id`), FOREIGN KEY(`alimento_id`) REFERENCES `Alimento`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "alimento_id",
+            "columnName": "alimento_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "usuario_id",
+            "columnName": "usuario_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "descripcion",
+            "columnName": "descripcion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pasos_preparacion",
+            "columnName": "pasos_preparacion",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "enlace_url",
+            "columnName": "enlace_url",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "alimento_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Detalle_Receta_alimento_id",
+            "unique": false,
+            "columnNames": [
+              "alimento_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Detalle_Receta_alimento_id` ON `${TABLE_NAME}` (`alimento_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Alimento",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "alimento_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Ingrediente_Receta",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `receta_id` TEXT NOT NULL, `ingrediente_id` TEXT NOT NULL, `cantidad_en_gramos` REAL NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`receta_id`) REFERENCES `Alimento`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`ingrediente_id`) REFERENCES `Alimento`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "receta_id",
+            "columnName": "receta_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingrediente_id",
+            "columnName": "ingrediente_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cantidad_en_gramos",
+            "columnName": "cantidad_en_gramos",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Ingrediente_Receta_receta_id",
+            "unique": false,
+            "columnNames": [
+              "receta_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Ingrediente_Receta_receta_id` ON `${TABLE_NAME}` (`receta_id`)"
+          },
+          {
+            "name": "index_Ingrediente_Receta_ingrediente_id",
+            "unique": false,
+            "columnNames": [
+              "ingrediente_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Ingrediente_Receta_ingrediente_id` ON `${TABLE_NAME}` (`ingrediente_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Alimento",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "receta_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "Alimento",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ingrediente_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0ed0f2a657cce18c429bd2ad45c3e94f')"
+    ]
+  }
+}

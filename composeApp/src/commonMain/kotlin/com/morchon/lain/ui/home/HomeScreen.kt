@@ -4,11 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,17 +15,67 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    viewModel: HomeViewModel = koinViewModel(),
     alNavegarRecetario: () -> Unit,
-    alNavegarCrearReceta: () -> Unit
+    alNavegarCrearReceta: () -> Unit,
+    alCerrarSesion: () -> Unit
 ) {
+    val estado by viewModel.estado.collectAsState()
+    var mostrarMenu by remember { mutableStateOf(false) }
+
+    LaunchedEffect(estado.sesionCerrada) {
+        if (estado.sesionCerrada) {
+            alCerrarSesion()
+        }
+    }
+
     Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("OpenMise", fontWeight = FontWeight.Bold) },
+                actions = {
+                    Box {
+                        IconButton(onClick = { mostrarMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Opciones")
+                        }
+                        DropdownMenu(
+                            expanded = mostrarMenu,
+                            onDismissRequest = { mostrarMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Editar Perfil (Próximamente)") },
+                                onClick = { mostrarMenu = false },
+                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text("Cerrar Sesión", color = MaterialTheme.colorScheme.error) },
+                                onClick = {
+                                    mostrarMenu = false
+                                    viewModel.cerrarSesion()
+                                },
+                                leadingIcon = { 
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ExitToApp, 
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error
+                                    ) 
+                                }
+                            )
+                        }
+                    }
+                }
+            )
+        },
         bottomBar = {
             BarraNavegacionInferior(
                 rutaActual = "home",
-                alPulsarHome = {}, // Ya estamos aquí
+                alPulsarHome = {},
                 alPulsarRecetario = alNavegarRecetario,
                 alPulsarCrear = alNavegarCrearReceta
             )
@@ -40,7 +89,7 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "¡Hola, Lain! 👋",
+                text = "¡Hola, ${estado.usuario?.nombre ?: "Usuario"}! 👋",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -145,6 +194,10 @@ fun BarraNavegacionInferior(
 @Composable
 fun HomePreview() {
     MaterialTheme {
-        HomeScreen({}, {})
+        HomeScreen(
+            alNavegarRecetario = {},
+            alNavegarCrearReceta = {},
+            alCerrarSesion = {}
+        )
     }
 }
