@@ -9,6 +9,7 @@ import com.morchon.lain.ui.core.navigation.Rutas
 import com.morchon.lain.ui.home.HomeScreen
 import com.morchon.lain.ui.login.LoginScreen
 import com.morchon.lain.ui.recetas.crear.CrearRecetaScreen
+import com.morchon.lain.ui.recetas.listado.ListadoRecetasScreen
 import com.morchon.lain.ui.login.LoginViewModel
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
@@ -48,9 +49,12 @@ fun App() {
                     )
                 }
 
-                // PANTALLA 3: RECETARIO (Próximamente)
+                // PANTALLA 3: RECETARIO
                 composable(Rutas.Recetario.ruta) {
-                    // Aquí irá la RecetaListScreen
+                    ListadoRecetasScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToCrear = { navController.navigate(Rutas.CrearReceta.ruta) }
+                    )
                 }
 
                 // PANTALLA 4: CREAR RECETA (Próximamente)
