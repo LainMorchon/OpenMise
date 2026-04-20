@@ -39,6 +39,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ListadoRecetasScreen(
     onNavigateBack: () -> Unit,
     onNavigateToCrear: () -> Unit,
+    onNavigateToDetalle: (String) -> Unit,
     viewModel: ListadoRecetasViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -81,7 +82,10 @@ fun ListadoRecetasScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(state.recetas) { receta ->
-                        RecetaItem(receta = receta)
+                        RecetaItem(
+                            receta = receta,
+                            onClick = { onNavigateToDetalle(receta.id) }
+                        )
                     }
                 }
             }
@@ -90,8 +94,12 @@ fun ListadoRecetasScreen(
 }
 
 @Composable
-fun RecetaItem(receta: Alimento) {
+fun RecetaItem(
+    receta: Alimento,
+    onClick: () -> Unit
+) {
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)

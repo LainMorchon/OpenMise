@@ -1,5 +1,6 @@
 package com.morchon.lain.ui.recetas.crear
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.morchon.lain.domain.model.Alimento
@@ -9,16 +10,44 @@ import com.morchon.lain.domain.repository.RecetaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class CrearRecetaViewModel(
+    savedStateHandle: SavedStateHandle,
     private val repository: RecetaRepository
 ) : ViewModel() {
 
+    private val recetaId: String? = savedStateHandle.get<String>("recetaId")?.let { if (it == "null") null else it }
+
     private val _state = MutableStateFlow(CrearRecetaState())
     val state: StateFlow<CrearRecetaState> = _state.asStateFlow()
+
+    init {
+        recetaId?.let { cargarRecetaParaEditar(it) }
+    }
+
+    private fun cargarRecetaParaEditar(id: String) {
+        viewModelScope.launch {
+            repository.obtenerRecetaCompleta(id).take(1).collect { receta ->
+                receta?.let { r ->
+                    _state.update { 
+                        it.copy(
+                            nombre = r.nombre,
+                            descripcion = r.descripcion,
+                            ingredientesAñadidos = r.ingredientes,
+                            kcalTotales = r.kcalPor100g,
+                            proteinasTotales = r.proteinasPor100g,
+                            carbohidratosTotales = r.carbohidratosPor100g,
+                            grasasTotales = r.grasasPor100g
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     // --- FUNCIONES PARA ACTUALIZAR EL FORMULARIO ---
 
@@ -81,8 +110,8 @@ class CrearRecetaViewModel(
 
         viewModelScope.launch {
             val nuevaReceta = Receta(
-                // Usamos nuestra función KMP en lugar del UUID de Java
-                id = generarIdUnico(),
+                // Si estamos editando, mantenemos el ID original
+                id = recetaId ?: generarIdUnico(),
                 nombre = estadoActual.nombre,
                 descripcion = estadoActual.descripcion,
                 usuarioId = "usuario_actual",
