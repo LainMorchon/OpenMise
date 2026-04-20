@@ -59,7 +59,7 @@ fun App() {
                     HomeScreen(
                         viewModel = homeViewModel,
                         alNavegarRecetario = { navController.navigate(Rutas.Recetario.ruta) },
-                        alNavegarCrearReceta = { navController.navigate(Rutas.CrearReceta.ruta) },
+                        alNavegarCrearReceta = { navController.navigate(Rutas.CrearReceta.crearRuta()) },
                         alCerrarSesion = {
                             navController.navigate(Rutas.Login.ruta) {
                                 popUpTo(Rutas.Home.ruta) { inclusive = true }
@@ -80,7 +80,16 @@ fun App() {
                 }
 
                 // PANTALLA 4: CREAR RECETA
-                composable(Rutas.CrearReceta.ruta) {
+                composable(
+                    route = Rutas.CrearReceta.ruta,
+                    arguments = listOf(
+                        androidx.navigation.navArgument("recetaId") {
+                            type = androidx.navigation.NavType.StringType
+                            nullable = true
+                            defaultValue = "null"
+                        }
+                    )
+                ) {
                     CrearRecetaScreen(
                         onNavigateBack = { navController.popBackStack() }
                     )

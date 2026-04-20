@@ -77,7 +77,7 @@ fun HomeScreen(
                 rutaActual = "home",
                 alPulsarHome = {},
                 alPulsarRecetario = alNavegarRecetario,
-                alPulsarCrear = alNavegarCrearReceta
+                alPulsarCrear = { alNavegarCrearReceta() }
             )
         }
     ) { paddingValues ->

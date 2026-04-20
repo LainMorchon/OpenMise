@@ -20,13 +20,26 @@ class CrearRecetaViewModel(
     private val repository: RecetaRepository
 ) : ViewModel() {
 
-    private val recetaId: String? = savedStateHandle.get<String>("recetaId")?.let { if (it == "null") null else it }
-
     private val _state = MutableStateFlow(CrearRecetaState())
     val state: StateFlow<CrearRecetaState> = _state.asStateFlow()
 
+    private var recetaId: String? = null
+
     init {
-        recetaId?.let { cargarRecetaParaEditar(it) }
+        // Observamos el cambio de ID en el SavedStateHandle
+        viewModelScope.launch {
+            savedStateHandle.getStateFlow<String?>("recetaId", null).collect { id ->
+                val idLimpio = if (id == "null" || id.isNullOrBlank()) null else id
+                recetaId = idLimpio
+                
+                if (idLimpio != null) {
+                    cargarRecetaParaEditar(idLimpio)
+                } else {
+                    // RESET TOTAL si no hay ID
+                    _state.value = CrearRecetaState()
+                }
+            }
+        }
     }
 
     private fun cargarRecetaParaEditar(id: String) {
