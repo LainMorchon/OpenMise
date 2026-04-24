@@ -15,7 +15,7 @@ val uiModule = module {
     viewModel { LoginViewModel(get()) }
     viewModel { RegistroViewModel(get()) }
     viewModel { HomeViewModel(get()) }
-    viewModel { handle -> CrearRecetaViewModel(handle.get(), get()) }
+    viewModel { handle -> CrearRecetaViewModel(handle.get(), get(), get()) }
     viewModel { ListadoRecetasViewModel(get()) }
     viewModel { handle -> DetalleRecetaViewModel(handle.get(), get()) }
 }

@@ -1,6 +1,7 @@
 package com.morchon.lain.data.repository
 
 import com.morchon.lain.data.database.dao.RecetaDao
+import com.morchon.lain.data.database.dao.AlimentoDao
 import com.morchon.lain.data.mapper.aAlimentoEntity
 import com.morchon.lain.data.mapper.aDetalleEntity
 import com.morchon.lain.data.mapper.aDominio
@@ -12,7 +13,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class RecetaRepositoryImpl(
-    private val recetaDao: RecetaDao
+    private val recetaDao: RecetaDao,
+    private val alimentoDao: AlimentoDao
 ) : RecetaRepository {
 
     override suspend fun guardarReceta(receta: Receta) {

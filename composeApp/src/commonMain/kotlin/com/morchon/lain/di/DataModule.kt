@@ -44,6 +44,8 @@ val dataModule = module {
     // --- RECETAS ---
     // 3. Proveemos el DAO de Recetas
     single { get<AppDatabase>().recetaDao() }
-    // 4. Proveemos el Repositorio de Recetas
-    single<RecetaRepository> { RecetaRepositoryImpl(get()) }
+    // 4. Proveemos el DAO de Alimentos
+    single { get<AppDatabase>().alimentoDao() }
+    // 5. Proveemos el Repositorio de Recetas
+    single<RecetaRepository> { RecetaRepositoryImpl(get(), get()) }
 }
