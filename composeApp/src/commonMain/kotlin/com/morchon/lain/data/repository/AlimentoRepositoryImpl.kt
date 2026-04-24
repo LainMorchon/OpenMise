@@ -1,6 +1,7 @@
 package com.morchon.lain.data.repository
 
 import com.morchon.lain.data.remote.FatSecretApiService
+import com.morchon.lain.data.mapper.aAlimentoEntity
 import com.morchon.lain.domain.model.Alimento
 import com.morchon.lain.domain.repository.AlimentoRepository
 
@@ -9,8 +10,13 @@ import com.morchon.lain.domain.repository.AlimentoRepository
  * Se encarga de llamar a la API y transformar los resultados.
  */
 class AlimentoRepositoryImpl(
-    private val apiService: FatSecretApiService
+    private val apiService: FatSecretApiService,
+    private val alimentoDao: com.morchon.lain.data.database.dao.AlimentoDao
 ) : AlimentoRepository {
+
+    override suspend fun guardarAlimentoLocal(alimento: Alimento) {
+        alimentoDao.insertarAlimento(alimento.aAlimentoEntity())
+    }
 
     override suspend fun buscarAlimentos(query: String): List<Alimento> {
         val response = apiService.buscarAlimentos(query)
@@ -41,10 +47,10 @@ class AlimentoRepositoryImpl(
             return regex.find(description)?.groupValues?.get(1)?.toFloatOrNull() ?: 0f
         }
 
-        val kcal = encontrarValor("Calories: (\\d+)".toRegex())
-        val fat = encontrarValor("Fat: ([\\d.]+)".toRegex())
-        val carbs = encontrarValor("Carbs: ([\\d.]+)".toRegex())
-        val prot = encontrarValor("Protein: ([\\d.]+)".toRegex())
+        val kcal = encontrarValor("Calories: ([\\d.]+)(?:kcal)?".toRegex())
+        val fat = encontrarValor("Fat: ([\\d.]+)(?:g)?".toRegex())
+        val carbs = encontrarValor("Carbs: ([\\d.]+)(?:g)?".toRegex())
+        val prot = encontrarValor("Protein: ([\\d.]+)(?:g)?".toRegex())
 
         return listOf(kcal, prot, carbs, fat)
     }

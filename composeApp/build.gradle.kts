@@ -54,12 +54,20 @@ kotlin {
         }
         
         val commonMain by getting {
-            // 2. Registrar la generación del archivo de configuración
+            // 2. Registrar la generación del archivo de configuración (Cache-friendly)
             val generateFatSecretConfig = tasks.register("generateFatSecretConfig") {
+                val id = fatSecretId
+                val secret = fatSecretSecret
                 val outputDir = layout.buildDirectory.dir("generated/fatsecret/commonMain/kotlin")
+                
+                // Declaramos entradas y salidas para que Gradle gestione el caché correctamente
+                inputs.property("fatSecretId", id)
+                inputs.property("fatSecretSecret", secret)
                 outputs.dir(outputDir)
+
                 doLast {
-                    val configFile = file("${outputDir.get()}/com/morchon/lain/core/config/FatSecretConfig.kt")
+                    val baseDir = outputDir.get().asFile
+                    val configFile = baseDir.resolve("com/morchon/lain/core/config/FatSecretConfig.kt")
                     configFile.parentFile.mkdirs()
                     configFile.writeText(
                         """
@@ -69,10 +77,10 @@ kotlin {
                          * ARCHIVO GENERADO AUTOMÁTICAMENTE. NO EDITAR NI SUBIR AL REPOSITORIO.
                          */
                         object FatSecretConfig {
-                            const val CLIENT_ID = "$fatSecretId"
-                            const val CLIENT_SECRET = "$fatSecretSecret"
+                            const val CLIENT_ID = "$id"
+                            const val CLIENT_SECRET = "$secret"
                             const val BASE_URL = "https://platform.fatsecret.com/rest/server.api"
-                            const val TOKEN_URL = "https://platform.fatsecret.com/connect/token"
+                            const val TOKEN_URL = "https://oauth.fatsecret.com/connect/token"
                         }
                         """.trimIndent()
                     )
@@ -100,7 +108,9 @@ kotlin {
 
                 // Ktor
                 implementation(libs.ktor.client.core)
-                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.client.auth)
+                implementation(libs.ktor.client.logging)
+                implementation(libs.ktor.client.contentNegotiation)
                 implementation(libs.ktor.serialization.kotlinx.json)
 
                 // Room & SQLite
@@ -127,6 +137,14 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.kotlinx.coroutinesSwing)
+                implementation(libs.ktor.client.okhttp)
+            }
+        }
+
+        // Añadimos el motor para Android
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.okhttp)
             }
         }
     }

@@ -12,4 +12,10 @@ interface AlimentoRepository {
      * @return Una lista de alimentos listos para ser usados en la UI.
      */
     suspend fun buscarAlimentos(query: String): List<Alimento>
+
+    /**
+     * Guarda un alimento en la base de datos local para que sea accesible sin conexión
+     * o para referenciarlo en recetas locales.
+     */
+    suspend fun guardarAlimentoLocal(alimento: Alimento)
 }

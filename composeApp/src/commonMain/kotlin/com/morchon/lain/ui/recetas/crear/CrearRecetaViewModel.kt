@@ -8,11 +8,13 @@ import com.morchon.lain.domain.model.Ingrediente
 import com.morchon.lain.domain.model.Receta
 import com.morchon.lain.domain.repository.AlimentoRepository
 import com.morchon.lain.domain.repository.RecetaRepository
+import com.morchon.lain.domain.repository.UsuarioRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,7 +22,8 @@ import kotlinx.coroutines.launch
 class CrearRecetaViewModel(
     savedStateHandle: SavedStateHandle,
     private val repository: RecetaRepository,
-    private val alimentoRepository: AlimentoRepository
+    private val alimentoRepository: AlimentoRepository,
+    private val usuarioRepository: UsuarioRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CrearRecetaState())
@@ -103,18 +106,24 @@ class CrearRecetaViewModel(
     // --- LA MAGIA: GESTIÓN DE INGREDIENTES Y MACROS ---
 
     fun anadirIngrediente(alimentoBase: Alimento, gramos: Float) {
-        val nuevoIngrediente = Ingrediente(alimento = alimentoBase, cantidadEnGramos = gramos)
+        viewModelScope.launch {
+            // Persistimos el alimento en la BD local antes de usarlo en la receta
+            // para garantizar integridad referencial (Foreign Key)
+            alimentoRepository.guardarAlimentoLocal(alimentoBase)
 
-        _state.update { estadoActual ->
-            val nuevaLista = estadoActual.ingredientesAñadidos + nuevoIngrediente
+            val nuevoIngrediente = Ingrediente(alimento = alimentoBase, cantidadEnGramos = gramos)
 
-            estadoActual.copy(
-                ingredientesAñadidos = nuevaLista,
-                kcalTotales = nuevaLista.map { it.kcalTotales }.sum(),
-                proteinasTotales = nuevaLista.map { it.proteinasTotales }.sum(),
-                carbohidratosTotales = nuevaLista.map { it.carbohidratosTotales }.sum(),
-                grasasTotales = nuevaLista.map { it.grasasTotales }.sum()
-            )
+            _state.update { estadoActual ->
+                val nuevaLista = estadoActual.ingredientesAñadidos + nuevoIngrediente
+
+                estadoActual.copy(
+                    ingredientesAñadidos = nuevaLista,
+                    kcalTotales = nuevaLista.map { it.kcalTotales }.sum(),
+                    proteinasTotales = nuevaLista.map { it.proteinasTotales }.sum(),
+                    carbohidratosTotales = nuevaLista.map { it.carbohidratosTotales }.sum(),
+                    grasasTotales = nuevaLista.map { it.grasasTotales }.sum()
+                )
+            }
         }
     }
 
@@ -150,12 +159,16 @@ class CrearRecetaViewModel(
         _state.update { it.copy(estaGuardando = true) }
 
         viewModelScope.launch {
+            // Obtenemos el ID del usuario activo de verdad
+            val usuarioActual = usuarioRepository.obtenerUsuarioActivo().firstOrNull()
+            val usuarioId = usuarioActual?.id ?: "usuario_anonimo"
+
             val nuevaReceta = Receta(
                 // Si estamos editando, mantenemos el ID original
                 id = recetaId ?: generarIdUnico(),
                 nombre = estadoActual.nombre,
                 descripcion = estadoActual.descripcion,
-                usuarioId = "usuario_actual",
+                usuarioId = usuarioId,
                 ingredientes = estadoActual.ingredientesAñadidos,
                 kcalPor100g = estadoActual.kcalTotales,
                 proteinasPor100g = estadoActual.proteinasTotales,
