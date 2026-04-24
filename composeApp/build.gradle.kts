@@ -1,6 +1,7 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -12,6 +13,16 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
 }
+
+// 1. Leer local.properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
+val fatSecretId = localProperties.getProperty("FATSECRET_CLIENT_ID") ?: ""
+val fatSecretSecret = localProperties.getProperty("FATSECRET_CLIENT_SECRET") ?: ""
 
 room {
     schemaDirectory("$projectDir/schemas")
@@ -36,29 +47,42 @@ kotlin {
 
     jvm() // Desktop
 
-    /* * ¡COMENTADOS TEMPORALMENTE!
-     * Room KMP no soporta Web de forma nativa todavía.
-     * Si necesitas soporte Web, tendrás que extraer la lógica local a un
-     * expect/actual o esperar a las próximas alphas de AndroidX.
-     */
-    // js {
-    //     browser()
-    //     binaries.executable()
-    // }
-    // @OptIn(ExperimentalWasmDsl::class)
-    // wasmJs {
-    //     browser()
-    //     binaries.executable()
-    // }
-
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
-        commonMain.dependencies {
-            // Usa el objeto oficial 'compose' para no depender del TOML
-            implementation(compose.runtime)
+        commonMain {
+            // 2. Registrar la generación del archivo de configuración
+            val generateFatSecretConfig = tasks.register("generateFatSecretConfig") {
+                val outputDir = layout.buildDirectory.dir("generated/fatsecret/commonMain/kotlin")
+                outputs.dir(outputDir)
+                doLast {
+                    val configFile = file("${outputDir.get()}/com/morchon/lain/core/config/FatSecretConfig.kt")
+                    configFile.parentFile.mkdirs()
+                    configFile.writeText(
+                        """
+                        package com.morchon.lain.core.config
+
+                        /**
+                         * ARCHIVO GENERADO AUTOMÁTICAMENTE. NO EDITAR NI SUBIR AL REPOSITORIO.
+                         */
+                        object FatSecretConfig {
+                            const val CLIENT_ID = "$fatSecretId"
+                            const val CLIENT_SECRET = "$fatSecretSecret"
+                            const val BASE_URL = "https://platform.fatsecret.com/rest/server.api"
+                            const val TOKEN_URL = "https://platform.fatsecret.com/connect/token"
+                        }
+                        """.trimIndent()
+                    )
+                }
+            }
+            // Añadir el directorio generado a las fuentes de commonMain
+            kotlin.srcDir(generateFatSecretConfig)
+
+            dependencies {
+                // Usa el objeto oficial 'compose' para no depender del TOML
+                implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
