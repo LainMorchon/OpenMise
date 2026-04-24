@@ -33,6 +33,8 @@ fun CrearRecetaScreen(
     // El diálogo se coloca fuera del Scaffold o dentro, pero NO dentro de LazyColumn directamente
     if (mostrarDialogo) {
         SeleccionarIngredienteDialog(
+            state = state,
+            onSearch = { viewModel.buscarAlimento(it) },
             onDismiss = { mostrarDialogo = false },
             onConfirm = { alimento, gramos ->
                 viewModel.anadirIngrediente(alimento, gramos)
@@ -146,34 +148,11 @@ fun CrearRecetaScreen(
 
 @Composable
 fun SeleccionarIngredienteDialog(
+    state: CrearRecetaState,
+    onSearch: (String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: (Alimento, Float) -> Unit
 ) {
-    // --- AVISO: LISTA PROVISIONAL ---
-    // TODO: En el futuro, estos alimentos vendrán de una búsqueda real en la base de datos o API.
-    val alimentosDePrueba = listOf(
-        Alimento("1", "Pollo (Pechuga)", "API_RAW", 165f, 31f, 0f, 3.6f),
-        Alimento("2", "Arroz Blanco", "API_RAW", 130f, 2.7f, 28f, 0.3f),
-        Alimento("3", "Aceite de Oliva", "API_RAW", 884f, 0f, 0f, 100f),
-        Alimento("4", "Huevo", "API_RAW", 155f, 13f, 1.1f, 11f),
-        Alimento("5", "Avena", "API_RAW", 389f, 16.9f, 66f, 6.9f),
-        Alimento("6", "Plátano", "API_RAW", 89f, 1.1f, 23f, 0.3f),
-        Alimento("7", "Atún al natural", "API_RAW", 116f, 26f, 0f, 1f),
-        Alimento("8", "Pan Integral", "API_RAW", 247f, 13f, 41f, 3.4f),
-        Alimento("9", "Patata Cocida", "API_RAW", 77f, 2f, 17f, 0.1f),
-        Alimento("10", "Salmón", "API_RAW", 208f, 20f, 0f, 13f),
-        Alimento("11", "Ternera (Magra)", "API_RAW", 250f, 26f, 0f, 15f),
-        Alimento("12", "Tofu", "API_RAW", 76f, 8f, 1.9f, 4.8f),
-        Alimento("13", "Leche Semidesnatada", "API_RAW", 50f, 3.4f, 4.8f, 1.8f),
-        Alimento("14", "Yogur Griego", "API_RAW", 115f, 10f, 4f, 5f),
-        Alimento("15", "Espinacas", "API_RAW", 23f, 2.9f, 3.6f, 0.4f),
-        Alimento("16", "Brócoli", "API_RAW", 34f, 2.8f, 7f, 0.4f),
-        Alimento("17", "Aguacate", "API_RAW", 160f, 2f, 9f, 15f),
-        Alimento("18", "Nueces", "API_RAW", 654f, 15f, 14f, 65f),
-        Alimento("19", "Manzana", "API_RAW", 52f, 0.3f, 14f, 0.2f),
-        Alimento("20", "Pasta Integral", "API_RAW", 348f, 15f, 70f, 3f)
-    )
-
     var busqueda by remember { mutableStateOf("") }
     var gramos by remember { mutableStateOf("100") }
     var alimentoSeleccionado by remember { mutableStateOf<Alimento?>(null) }
@@ -185,17 +164,32 @@ fun SeleccionarIngredienteDialog(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = busqueda,
-                    onValueChange = { busqueda = it },
-                    label = { Text("Buscar alimento...") },
-                    modifier = Modifier.fillMaxWidth()
+                    onValueChange = { 
+                        busqueda = it
+                        onSearch(it) // Disparamos la búsqueda en el ViewModel
+                    },
+                    label = { Text("Buscar alimento en FatSecret...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = {
+                        if (state.estaBuscando) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        }
+                    }
                 )
 
-                // Filtro provisional sobre la lista hardcoded
-                val filtrados = alimentosDePrueba.filter { it.nombre.contains(busqueda, ignoreCase = true) }
+                LazyColumn(modifier = Modifier.height(200.dp)) {
+                    if (state.resultadosBusqueda.isEmpty() && busqueda.isNotBlank() && !state.estaBuscando) {
+                        item {
+                            Text(
+                                "No se han encontrado resultados",
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                    }
 
-                LazyColumn(modifier = Modifier.height(150.dp)) {
-                    items(filtrados.size) { index ->
-                        val alimento = filtrados[index]
+                    items(state.resultadosBusqueda.size) { index ->
+                        val alimento = state.resultadosBusqueda[index]
                         val esSeleccionado = alimento == alimentoSeleccionado
 
                         Surface(
@@ -204,7 +198,13 @@ fun SeleccionarIngredienteDialog(
                             shape = MaterialTheme.shapes.small,
                             modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)
                         ) {
-                            Text(alimento.nombre, modifier = Modifier.padding(8.dp))
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                Text(alimento.nombre, style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    "Kcal: ${alimento.kcalPor100g.toInt()} | P: ${alimento.proteinasPor100g}g | HC: ${alimento.carbohidratosPor100g}g",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         }
                     }
                 }

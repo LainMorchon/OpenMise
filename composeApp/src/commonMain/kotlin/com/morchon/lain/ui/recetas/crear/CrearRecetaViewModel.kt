@@ -6,24 +6,28 @@ import androidx.lifecycle.viewModelScope
 import com.morchon.lain.domain.model.Alimento
 import com.morchon.lain.domain.model.Ingrediente
 import com.morchon.lain.domain.model.Receta
+import com.morchon.lain.domain.repository.AlimentoRepository
 import com.morchon.lain.domain.repository.RecetaRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 class CrearRecetaViewModel(
     savedStateHandle: SavedStateHandle,
-    private val repository: RecetaRepository
+    private val repository: RecetaRepository,
+    private val alimentoRepository: AlimentoRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CrearRecetaState())
     val state: StateFlow<CrearRecetaState> = _state.asStateFlow()
 
     private var recetaId: String? = null
+    private var busquedaJob: Job? = null
 
     init {
         // Observamos el cambio de ID en el SavedStateHandle
@@ -70,6 +74,30 @@ class CrearRecetaViewModel(
 
     fun onDescripcionCambiada(nuevaDesc: String) {
         _state.update { it.copy(descripcion = nuevaDesc) }
+    }
+
+    // --- BÚSQUEDA DE ALIMENTOS EN API ---
+
+    fun buscarAlimento(query: String) {
+        busquedaJob?.cancel() // Cancelamos la búsqueda anterior si el usuario sigue escribiendo
+
+        if (query.isBlank()) {
+            _state.update { it.copy(resultadosBusqueda = emptyList(), estaBuscando = false) }
+            return
+        }
+
+        busquedaJob = viewModelScope.launch {
+            delay(500) // Debounce: esperamos medio segundo antes de disparar la petición
+            _state.update { it.copy(estaBuscando = true) }
+            
+            try {
+                val resultados = alimentoRepository.buscarAlimentos(query)
+                _state.update { it.copy(resultadosBusqueda = resultados, estaBuscando = false) }
+            } catch (e: Exception) {
+                _state.update { it.copy(estaBuscando = false) }
+                // Aquí podrías gestionar el error (ej: mostrar un snackbar)
+            }
+        }
     }
 
     // --- LA MAGIA: GESTIÓN DE INGREDIENTES Y MACROS ---

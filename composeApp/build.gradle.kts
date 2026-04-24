@@ -52,7 +52,8 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
-        commonMain {
+        
+        val commonMain by getting {
             // 2. Registrar la generación del archivo de configuración
             val generateFatSecretConfig = tasks.register("generateFatSecretConfig") {
                 val outputDir = layout.buildDirectory.dir("generated/fatsecret/commonMain/kotlin")
@@ -81,46 +82,52 @@ kotlin {
             kotlin.srcDir(generateFatSecretConfig)
 
             dependencies {
-                // Usa el objeto oficial 'compose' para no depender del TOML
                 implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
 
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.androidx.navigation.compose)
+                implementation(libs.androidx.lifecycle.viewmodelCompose)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
+                implementation(libs.androidx.navigation.compose)
 
-            // Koin
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose)
-            implementation(libs.koin.compose.viewmodel)
+                // Koin
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose)
+                implementation(libs.koin.compose.viewmodel)
 
-            // Ktor
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.serialization.kotlinx.json)
+                // Ktor
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
 
-            // Room & SQLite
-            implementation(libs.androidx.room.runtime)
-            implementation(libs.sqlite.bundled)
+                // Room & SQLite
+                implementation(libs.androidx.room.runtime)
+                implementation(libs.sqlite.bundled)
 
-            // Paging
-            implementation(libs.paging.common)
-            implementation(libs.paging.compose.common)
+                // Paging
+                implementation(libs.paging.common)
+                implementation(libs.paging.compose.common)
 
-            // Utils
-            implementation(libs.kotlinx.datetime)
-            implementation(libs.kotlinx.serialization.json)
+                // Utils
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.json)
+            }
         }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
+        
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.kotlin.test)
+            }
         }
-        jvmMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
+        
+        val jvmMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutinesSwing)
+            }
         }
     }
 }
@@ -152,16 +159,9 @@ android {
     }
 }
 
-// ESTE BLOQUE ES VITAL.
-// Cada target declarado arriba debe tener su procesador de símbolos (KSP)
-// para que Room genere los archivos DAO por debajo.
 dependencies {
     debugImplementation(compose.uiTooling)
-
-    // Generación para common
     add("kspCommonMainMetadata", libs.androidx.room.compiler)
-
-    // Generación por Target (Faltaba kspJvm)
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
@@ -171,7 +171,6 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "com.morchon.lain.MainKt"
-
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.morchon.lain"
