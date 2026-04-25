@@ -20,10 +20,13 @@ class AlimentoRepositoryImpl(
         return response.foods?.food?.map { dto ->
             val (kcal, prot, carbs, fats) = extraerMacrosDeDescripcion(dto.foodDescription ?: "")
             
+            // Log para depuración: ver qué tipo llega realmente
+            println("Alimento: ${dto.foodName} | Tipo: ${dto.foodType}")
+
             Alimento(
                 id = dto.foodId,
                 nombre = dto.foodName,
-                origen = if (dto.foodType == "Brand") "API_COMMERCIAL" else "API_RAW",
+                origen = if (dto.foodType?.contains("Brand", ignoreCase = true) == true) "API_COMMERCIAL" else "API_RAW",
                 kcalPor100g = kcal,
                 proteinasPor100g = prot,
                 carbohidratosPor100g = carbs,
