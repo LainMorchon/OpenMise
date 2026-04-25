@@ -14,6 +14,7 @@ data class CrearRecetaState(
     // 3. Resultados de búsqueda de alimentos (API FatSecret)
     val resultadosBusqueda: List<Alimento> = emptyList(),
     val estaBuscando: Boolean = false,
+    val filtroBusqueda: String = "all", // "all", "generic", "brand"
 
     // 3. Macros totales (se calcularán solos en el ViewModel)
     val kcalTotales: Float = 0f,
