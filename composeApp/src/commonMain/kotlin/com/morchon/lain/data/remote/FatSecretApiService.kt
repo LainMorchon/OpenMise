@@ -9,25 +9,22 @@ import io.ktor.client.request.parameter
 
 /**
  * Servicio encargado de la comunicación con el Proxy de OpenMise.
- * El proxy gestiona la autenticación con FatSecret y oculta las credenciales.
  */
 class FatSecretApiService(private val client: HttpClient) {
 
     /**
      * Busca alimentos por nombre a través del servidor proxy.
-     * @param query El término de búsqueda (ej: "Manzana").
+     * @param query El término de búsqueda.
+     * @param type El tipo de filtrado: "all", "generic" o "brand".
      */
-    suspend fun buscarAlimentos(query: String): FatSecretSearchResponse {
+    suspend fun buscarAlimentos(query: String, type: String = "all"): FatSecretSearchResponse {
         return client.get("${FatSecretConfig.BASE_URL}/search") {
             parameter("q", query)
+            parameter("type", type)
         }.body()
     }
 
-    /**
-     * Obtiene los detalles nutricionales específicos de un alimento mediante su ID.
-     * Pendiente de implementar en el proxy si es necesario.
-     */
     suspend fun obtenerDetallesAlimento(foodId: String) {
-        // TODO: Implementar cuando el proxy soporte detalles
+        // Pendiente de implementar en el proxy
     }
 }

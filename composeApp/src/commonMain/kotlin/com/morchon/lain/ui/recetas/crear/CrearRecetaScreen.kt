@@ -34,7 +34,7 @@ fun CrearRecetaScreen(
     if (mostrarDialogo) {
         SeleccionarIngredienteDialog(
             state = state,
-            onSearch = { viewModel.buscarAlimento(it) },
+            onSearch = { query, tipo -> viewModel.buscarAlimento(query, tipo) },
             onDismiss = { mostrarDialogo = false },
             onConfirm = { alimento, gramos ->
                 viewModel.anadirIngrediente(alimento, gramos)
@@ -149,26 +149,44 @@ fun CrearRecetaScreen(
 @Composable
 fun SeleccionarIngredienteDialog(
     state: CrearRecetaState,
-    onSearch: (String) -> Unit,
+    onSearch: (String, String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: (Alimento, Float) -> Unit
 ) {
     var busqueda by remember { mutableStateOf("") }
     var gramos by remember { mutableStateOf("100") }
     var alimentoSeleccionado by remember { mutableStateOf<Alimento?>(null) }
+    var filtroSeleccionado by remember { mutableStateOf(state.filtroBusqueda) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Añadir ingrediente") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                // Filtros (Chips)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf("all" to "Todo", "generic" to "Básicos", "brand" to "Marcas").forEach { (id, label) ->
+                        FilterChip(
+                            selected = filtroSeleccionado == id,
+                            onClick = { 
+                                filtroSeleccionado = id
+                                onSearch(busqueda, id)
+                            },
+                            label = { Text(label) }
+                        )
+                    }
+                }
+
                 OutlinedTextField(
                     value = busqueda,
                     onValueChange = { 
                         busqueda = it
-                        onSearch(it) // Disparamos la búsqueda en el ViewModel
+                        onSearch(it, filtroSeleccionado)
                     },
-                    label = { Text("Buscar alimento en FatSecret...") },
+                    label = { Text("Buscar alimento...") },
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         if (state.estaBuscando) {

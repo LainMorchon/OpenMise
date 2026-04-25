@@ -81,8 +81,16 @@ class CrearRecetaViewModel(
 
     // --- BÚSQUEDA DE ALIMENTOS EN API ---
 
-    fun buscarAlimento(query: String) {
-        busquedaJob?.cancel() // Cancelamos la búsqueda anterior si el usuario sigue escribiendo
+    fun onFiltroBusquedaCambiado(nuevoFiltro: String) {
+        _state.update { it.copy(filtroBusqueda = nuevoFiltro) }
+        // Si ya hay algo escrito, re-disparamos la búsqueda con el nuevo filtro
+        val queryActual = _state.value.resultadosBusqueda.let { "" } // En una versión pro guardaríamos la query en el state
+        // Para simplificar, si cambia el filtro, que el usuario tenga que escribir o capturamos la query
+    }
+
+    fun buscarAlimento(query: String, tipo: String? = null) {
+        val tipoFinal = tipo ?: _state.value.filtroBusqueda
+        busquedaJob?.cancel()
 
         if (query.isBlank()) {
             _state.update { it.copy(resultadosBusqueda = emptyList(), estaBuscando = false) }
@@ -90,15 +98,14 @@ class CrearRecetaViewModel(
         }
 
         busquedaJob = viewModelScope.launch {
-            delay(500) // Debounce: esperamos medio segundo antes de disparar la petición
-            _state.update { it.copy(estaBuscando = true) }
+            delay(500)
+            _state.update { it.copy(estaBuscando = true, filtroBusqueda = tipoFinal) }
             
             try {
-                val resultados = alimentoRepository.buscarAlimentos(query)
+                val resultados = alimentoRepository.buscarAlimentos(query, tipoFinal)
                 _state.update { it.copy(resultadosBusqueda = resultados, estaBuscando = false) }
             } catch (e: Exception) {
                 _state.update { it.copy(estaBuscando = false) }
-                // Aquí podrías gestionar el error (ej: mostrar un snackbar)
             }
         }
     }
