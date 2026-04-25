@@ -57,8 +57,10 @@ class CrearRecetaViewModel(
                         it.copy(
                             nombre = r.nombre,
                             descripcion = r.descripcion,
+                            pasosPreparacion = r.pasosPreparacion ?: "",
+                            enlaceUrl = r.enlaceUrl ?: "",
                             ingredientesAñadidos = r.ingredientes,
-                            kcalTotales = r.kcalPor100g,
+                            kcalTotales = r.kcalPor100g, // Cuidado: Receta carga lo guardado por 100g
                             proteinasTotales = r.proteinasPor100g,
                             carbohidratosTotales = r.carbohidratosPor100g,
                             grasasTotales = r.grasasPor100g
@@ -77,6 +79,14 @@ class CrearRecetaViewModel(
 
     fun onDescripcionCambiada(nuevaDesc: String) {
         _state.update { it.copy(descripcion = nuevaDesc) }
+    }
+
+    fun onPasosCambiados(nuevosPasos: String) {
+        _state.update { it.copy(pasosPreparacion = nuevosPasos) }
+    }
+
+    fun onEnlaceCambiado(nuevoEnlace: String) {
+        _state.update { it.copy(enlaceUrl = nuevoEnlace) }
     }
 
     // --- BÚSQUEDA DE ALIMENTOS EN API ---
@@ -168,19 +178,26 @@ class CrearRecetaViewModel(
         viewModelScope.launch {
             // Obtenemos el ID del usuario activo de verdad
             val usuarioActual = usuarioRepository.obtenerUsuarioActivo().firstOrNull()
-            val usuarioId = usuarioActual?.id ?: "usuario_anonimo"
+            val finalUsuarioId = usuarioActual?.id ?: "usuario_anonimo"
+
+            // Cálculo de macros por 100g
+            val pesoTotal = estadoActual.ingredientesAñadidos.sumOf { it.cantidadEnGramos.toDouble() }.toFloat()
+            val factor100g = if (pesoTotal > 0) 100f / pesoTotal else 0f
 
             val nuevaReceta = Receta(
                 // Si estamos editando, mantenemos el ID original
                 id = recetaId ?: generarIdUnico(),
                 nombre = estadoActual.nombre,
                 descripcion = estadoActual.descripcion,
-                usuarioId = usuarioId,
+                pasosPreparacion = estadoActual.pasosPreparacion,
+                enlaceUrl = estadoActual.enlaceUrl,
+                usuarioId = finalUsuarioId,
                 ingredientes = estadoActual.ingredientesAñadidos,
-                kcalPor100g = estadoActual.kcalTotales,
-                proteinasPor100g = estadoActual.proteinasTotales,
-                carbohidratosPor100g = estadoActual.carbohidratosTotales,
-                grasasPor100g = estadoActual.grasasTotales
+                // Guardamos los macros calculados para 100g
+                kcalPor100g = estadoActual.kcalTotales * factor100g,
+                proteinasPor100g = estadoActual.proteinasTotales * factor100g,
+                carbohidratosPor100g = estadoActual.carbohidratosTotales * factor100g,
+                grasasPor100g = estadoActual.grasasTotales * factor100g
             )
 
             repository.guardarReceta(nuevaReceta)

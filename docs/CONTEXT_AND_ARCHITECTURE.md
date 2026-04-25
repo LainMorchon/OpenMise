@@ -59,6 +59,7 @@ Configuración de módulos de Koin para unir todas las capas.
 Tablas principales definidas:
 - `Usuario`: Perfil y objetivos nutricionales.
 - `Alimento`: Catálogo base de alimentos.
-- `Detalle_Receta` / `Ingrediente_Receta`: Estructura de recetas compuestas.
+- `Detalle_Receta`: Detalles extendidos (descripción, pasos, url, imagen).
+- `Ingrediente_Receta`: Estructura de recetas compuestas.
 - `Plan` / `Item_Plan`: Plantillas de alimentación.
 - `Registro_Diario`: Log de consumo con macros congelados.

@@ -18,6 +18,7 @@ class Receta(
     val descripcion: String,
     val pasosPreparacion: String? = null,
     val enlaceUrl: String? = null,
+    val imagenUrl: String? = null,
     val ingredientes: List<Ingrediente> = emptyList()
 
 ) : Alimento(
