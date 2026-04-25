@@ -95,7 +95,29 @@ fun CrearRecetaScreen(
                     onValueChange = { viewModel.onDescripcionCambiada(it) },
                     label = { Text("Descripción / Notas") },
                     modifier = Modifier.fillMaxWidth(),
-                    minLines = 3
+                    minLines = 2
+                )
+            }
+
+            // 3. Campo Pasos de Preparación
+            item {
+                OutlinedTextField(
+                    value = state.pasosPreparacion,
+                    onValueChange = { viewModel.onPasosCambiados(it) },
+                    label = { Text("Pasos de preparación") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 4
+                )
+            }
+
+            // 4. Campo Enlace URL
+            item {
+                OutlinedTextField(
+                    value = state.enlaceUrl,
+                    onValueChange = { viewModel.onEnlaceCambiado(it) },
+                    label = { Text("Enlace (YouTube, Blog...)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
             }
 

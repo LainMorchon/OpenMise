@@ -22,5 +22,6 @@ data class DetalleRecetaEntity(
     val usuario_id: String,
     val descripcion: String,
     val pasos_preparacion: String?,
-    val enlace_url: String?
+    val enlace_url: String?,
+    val imagen_url: String?
 )

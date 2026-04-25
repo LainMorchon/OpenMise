@@ -48,6 +48,7 @@ fun RecetaCompleta.aDominio(): Receta {
         descripcion = detalle?.descripcion ?: "",
         pasosPreparacion = detalle?.pasos_preparacion,
         enlaceUrl = detalle?.enlace_url,
+        imagenUrl = detalle?.imagen_url,
 
         // La lista de ingredientes ya no debería dar error fantasma
         ingredientes = ingredientes.map { it.aDominio() }
@@ -100,7 +101,8 @@ fun Receta.aDetalleEntity(): DetalleRecetaEntity {
         usuario_id = usuarioId,
         descripcion = descripcion,
         pasos_preparacion = pasosPreparacion,
-        enlace_url = enlaceUrl
+        enlace_url = enlaceUrl,
+        imagen_url = imagenUrl
     )
 }
 

@@ -7,6 +7,8 @@ data class CrearRecetaState(
     // 1. Textos del formulario
     val nombre: String = "",
     val descripcion: String = "",
+    val pasosPreparacion: String = "",
+    val enlaceUrl: String = "",
 
     // 2. La lista de ingredientes que el usuario va añadiendo
     val ingredientesAñadidos: List<Ingrediente> = emptyList(),
