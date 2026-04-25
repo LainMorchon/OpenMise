@@ -21,8 +21,7 @@ if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
 
-val fatSecretId = localProperties.getProperty("FATSECRET_CLIENT_ID") ?: ""
-val fatSecretSecret = localProperties.getProperty("FATSECRET_CLIENT_SECRET") ?: ""
+val proxyUrl = localProperties.getProperty("PROXY_URL") ?: ""
 
 room {
     schemaDirectory("$projectDir/schemas")
@@ -56,13 +55,11 @@ kotlin {
         val commonMain by getting {
             // 2. Registrar la generación del archivo de configuración (Cache-friendly)
             val generateFatSecretConfig = tasks.register("generateFatSecretConfig") {
-                val id = fatSecretId
-                val secret = fatSecretSecret
+                val url = proxyUrl
                 val outputDir = layout.buildDirectory.dir("generated/fatsecret/commonMain/kotlin")
                 
                 // Declaramos entradas y salidas para que Gradle gestione el caché correctamente
-                inputs.property("fatSecretId", id)
-                inputs.property("fatSecretSecret", secret)
+                inputs.property("proxyUrl", url)
                 outputs.dir(outputDir)
 
                 doLast {
@@ -77,10 +74,7 @@ kotlin {
                          * ARCHIVO GENERADO AUTOMÁTICAMENTE. NO EDITAR NI SUBIR AL REPOSITORIO.
                          */
                         object FatSecretConfig {
-                            const val CLIENT_ID = "$id"
-                            const val CLIENT_SECRET = "$secret"
-                            const val BASE_URL = "https://platform.fatsecret.com/rest/server.api"
-                            const val TOKEN_URL = "https://oauth.fatsecret.com/connect/token"
+                            const val BASE_URL = "$url"
                         }
                         """.trimIndent()
                     )
