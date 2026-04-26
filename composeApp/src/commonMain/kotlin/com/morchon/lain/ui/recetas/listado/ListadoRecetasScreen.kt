@@ -1,29 +1,15 @@
 package com.morchon.lain.ui.recetas.listado
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material3.*
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.morchon.lain.domain.model.Alimento
+import com.morchon.lain.domain.model.Receta
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,7 +81,7 @@ fun ListadoRecetasScreen(
 
 @Composable
 fun RecetaItem(
-    receta: Alimento,
+    receta: Receta,
     onClick: () -> Unit
 ) {
     Card(
@@ -104,23 +90,59 @@ fun RecetaItem(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = receta.nombre,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row {
-                MacroInfo(label = "Kcal", value = receta.kcalPor100g.toInt().toString())
-                Spacer(modifier = Modifier.width(16.dp))
-                MacroInfo(label = "Prot", value = "${receta.proteinasPor100g}g")
-                Spacer(modifier = Modifier.width(16.dp))
-                MacroInfo(label = "Carb", value = "${receta.carbohidratosPor100g}g")
-                Spacer(modifier = Modifier.width(16.dp))
-                MacroInfo(label = "Gras", value = "${receta.grasasPor100g}g")
+            // Imagen de la receta o placeholder
+            Box(
+                modifier = Modifier
+                    .weight(0.3f)
+                    .aspectRatio(1f)
+            ) {
+                if (receta.imagenUrl != null) {
+                    AsyncImage(
+                        model = receta.imagenUrl,
+                        contentDescription = receta.nombre,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Restaurant,
+                            contentDescription = null,
+                            modifier = Modifier.padding(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(0.7f)
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = receta.nombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    MacroInfo(label = "Kcal", value = receta.kcalPor100g.toInt().toString())
+                    MacroInfo(label = "P", value = "${receta.proteinasPor100g.toInt()}g")
+                    MacroInfo(label = "HC", value = "${receta.carbohidratosPor100g.toInt()}g")
+                    MacroInfo(label = "G", value = "${receta.grasasPor100g.toInt()}g")
+                }
             }
         }
     }
