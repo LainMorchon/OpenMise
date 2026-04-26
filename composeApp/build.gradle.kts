@@ -95,6 +95,9 @@ kotlin {
                 implementation(libs.androidx.lifecycle.runtimeCompose)
                 implementation(libs.androidx.navigation.compose)
 
+                // Icons
+                implementation(libs.androidx.material.icons.extended)
+
                 // Koin
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)

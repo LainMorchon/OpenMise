@@ -1,15 +1,26 @@
 package com.morchon.lain.ui.recetas.crear
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import com.morchon.lain.domain.model.Alimento // Asegúrate de que el import sea correcto
+import coil3.compose.AsyncImage
+import com.morchon.lain.domain.model.Alimento 
+import com.morchon.lain.ui.core.util.rememberImagePicker
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,6 +30,12 @@ fun CrearRecetaScreen(
     viewModel: CrearRecetaViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+
+    // --- LÓGICA DE IMAGEN ---
+    val imagePicker = rememberImagePicker { bytes ->
+        viewModel.onImagenSeleccionada(bytes)
+    }
+    var mostrarMenuImagen by remember { mutableStateOf(false) }
 
     // --- LÓGICA DE ESTADO PARA EL DIÁLOGO ---
     var mostrarDialogo by remember { mutableStateOf(false) }
@@ -77,6 +94,78 @@ fun CrearRecetaScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // 0. Selector de Imagen
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { mostrarMenuImagen = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.imagenByteArray != null) {
+                        AsyncImage(
+                            model = state.imagenByteArray,
+                            contentDescription = "Imagen de la receta",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                        
+                        // Botón para borrar imagen
+                        IconButton(
+                            onClick = { viewModel.onImagenSeleccionada(null) },
+                            modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
+                            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Black.copy(alpha = 0.5f))
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.White)
+                        }
+                    } else {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.AddAPhoto,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text("Añadir foto de la receta")
+                            }
+                        }
+                    }
+                }
+
+                if (mostrarMenuImagen) {
+                    ModalBottomSheet(onDismissRequest = { mostrarMenuImagen = false }) {
+                        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+                            ListItem(
+                                headlineContent = { Text("Cámara") },
+                                leadingContent = { Icon(Icons.Default.CameraAlt, null) },
+                                modifier = Modifier.clickable {
+                                    imagePicker.takePicture()
+                                    mostrarMenuImagen = false
+                                }
+                            )
+                            ListItem(
+                                headlineContent = { Text("Galería") },
+                                leadingContent = { Icon(Icons.Default.PhotoLibrary, null) },
+                                modifier = Modifier.clickable {
+                                    imagePicker.pickImage()
+                                    mostrarMenuImagen = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
             // 1. Campo Nombre
             item {
                 OutlinedTextField(
