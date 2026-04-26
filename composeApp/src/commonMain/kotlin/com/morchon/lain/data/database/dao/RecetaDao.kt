@@ -43,10 +43,11 @@ interface RecetaDao {
     }
 
     /**
-     * Obtiene el listado básico para el catálogo.
+     * Obtiene el listado completo para el catálogo con detalle e ingredientes.
      */
+    @Transaction
     @Query("SELECT * FROM Alimento WHERE origen = 'CUSTOM_RECIPE'")
-    fun obtenerTodasLasRecetas(): Flow<List<AlimentoEntity>>
+    fun obtenerTodasLasRecetasCompletas(): Flow<List<RecetaCompleta>>
 
     /**
      * Obtiene una receta con todo su detalle e ingredientes por ID.

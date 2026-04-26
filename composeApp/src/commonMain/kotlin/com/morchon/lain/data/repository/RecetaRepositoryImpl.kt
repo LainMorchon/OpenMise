@@ -37,8 +37,8 @@ class RecetaRepositoryImpl(
         )
     }
 
-    override fun obtenerTodasLasRecetas(): Flow<List<Alimento>> {
-        return recetaDao.obtenerTodasLasRecetas().map { lista ->
+    override fun obtenerTodasLasRecetas(): Flow<List<Receta>> {
+        return recetaDao.obtenerTodasLasRecetasCompletas().map { lista ->
             lista.map { it.aDominio() }
         }
     }
