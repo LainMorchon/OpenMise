@@ -89,6 +89,10 @@ class CrearRecetaViewModel(
         _state.update { it.copy(enlaceUrl = nuevoEnlace) }
     }
 
+    fun onImagenSeleccionada(bytes: ByteArray?) {
+        _state.update { it.copy(imagenByteArray = bytes) }
+    }
+
     // --- BÚSQUEDA DE ALIMENTOS EN API ---
 
     fun onFiltroBusquedaCambiado(nuevoFiltro: String) {
