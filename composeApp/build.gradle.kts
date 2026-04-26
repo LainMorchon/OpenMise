@@ -118,6 +118,10 @@ kotlin {
                 // Utils
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
+
+                // Coil KMP
+                implementation(libs.coil.compose)
+                implementation(libs.coil.network.ktor)
             }
         }
         
