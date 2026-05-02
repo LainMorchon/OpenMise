@@ -9,6 +9,7 @@ data class CrearRecetaState(
     val descripcion: String = "",
     val pasosPreparacion: String = "",
     val enlaceUrl: String = "",
+    val imagenUrl: String? = null,
     val imagenByteArray: ByteArray? = null, // Para previsualización y guardado
 
     // 2. La lista de ingredientes que el usuario va añadiendo

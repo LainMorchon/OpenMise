@@ -27,6 +27,7 @@
 * **`core/`**: Componentes reutilizables, extensiones, temas y navegación.
     * `components/`: `FoodCard.kt`, `MacroChip.kt`, `PagingLoadingState.kt`.
     * `navigation/`: `NavigationWrapper.kt`, `Routes.kt`.
+    * `util/`: `CameraManager.kt` (Gestión de cámara/galería KMP), `ImageManager.kt`.
 * **`home/`**, **`detail/`**, **`plan/`** (Features):
     * `XXXScreen.kt`: El código UI de la pantalla.
     * `XXXViewModel.kt`: Gestión de la lógica de pantalla.

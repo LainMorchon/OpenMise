@@ -10,6 +10,8 @@ Aunque el proyecto está configurado para ser multiplataforma (Android, iOS, Des
 
 ## 2. Stack Tecnológico (KMP Core)
 - **UI**: Compose Multiplatform (Material 3).
+- **Iconografía**: Material Icons Extended (vía `compose.materialIconsExtended`).
+- **Imágenes**: Coil 3 (Soporte para ByteArray, File y URL).
 - **Inyección de Dependencias**: Koin.
 - **Red**: Ktor Client (JSON con Kotlinx Serialization).
 - **Base de Datos Local**: Room KMP (SQLite).
@@ -25,9 +27,16 @@ Se sigue una **Clean Architecture** adaptada para KMP, organizada dentro de `com
 
 ### 🟢 Capa de Dominio (`domain/`)
 Contiene las reglas de negocio puras, sin dependencias de frameworks externos.
-- **`model/`**: Entidades (POJOs/Data Classes). Ej: `Usuario`, `Alimento`, `Receta`, `RegistroDiario`.
-- **`repository/`**: Interfaces de repositorios (contratos).
-- **`usecase/`**: Lógica de orquestación de datos.
+- **`model/`**: Entidades (POJOs/Data Classes). 
+    - `Usuario`: Perfil y objetivos.
+    - `Alimento` / `Receta`: Base nutricional.
+    - `Plan` / `ItemPlan`: Plantillas de alimentación estructuradas por momentos del día.
+    - `RegistroDiario`: Log de consumo real con valores "congelados" (Snapshot).
+- **`repository/`**: Interfaces de repositorios (contratos para `PlanRepository`, `RegistroDiarioRepository`, etc.).
+- **`usecase/`**: Lógica de orquestación.
+    - `GetConsumoDiarioUseCase`: Calcula el progreso del día actual.
+    - `AplicarPlanUseCase`: Vuelca una plantilla completa al registro diario.
+    - `AddAlimentoAlRegistroUseCase`: Implementa la lógica de snapshot al guardar un consumo.
 
 ### 🔵 Capa de Datos (`data/`)
 Implementación de la persistencia y red.
@@ -37,11 +46,13 @@ Implementación de la persistencia y red.
 
 ### 🟡 Capa de UI/Presentación (`ui/`)
 UI declarativa con Compose.
-- **`core/`**: Componentes reutilizables, temas, navegación y extensiones.
-- **Features (`home/`, `login/`, `recetas/`, etc.)**:
-    - `XXXScreen`: Composable principal de la pantalla.
-    - `XXXViewModel`: Lógica de presentación y gestión de estado.
-    - `XXXState`: Clase que define el estado único de la UI.
+- **`core/util/`**: Contiene `CameraManager`, una abstracción `expect/actual` para manejar la Cámara y Galería de forma nativa en Android e iOS, con optimización de memoria y gestión de permisos.
+- **Features**:
+    - `ui/home/`: Dashboard principal con barras de progreso nutricional.
+    - `ui/recetas/`: Creación y listado de recetas complejas.
+    - `ui/planes/`: Gestión de plantillas de comidas semanales o diarias.
+    - `ui/registro/`: Flujo de búsqueda y adición de alimentos al log diario.
+    - `ui/perfil/`: Configuración de objetivos y datos físicos del usuario.
 
 ### 🔴 Inyección de Dependencias (`di/`)
 Configuración de módulos de Koin para unir todas las capas.
@@ -49,9 +60,10 @@ Configuración de módulos de Koin para unir todas las capas.
 ---
 
 ## 4. Conceptos Clave de Negocio
-1. **Polimorfismo Nutricional**: Una `Receta` es tratada como un `Alimento`. Esto permite que el sistema de registros y planes acepte ambos de forma indistinta.
-2. **Patrón Snapshot**: El `RegistroDiario` guarda una "foto" de los macros en el momento del consumo. Si el alimento original cambia sus valores en el futuro, el historial pasado permanece inalterado.
-3. **Flujo de Datos**: Unidireccional (UDF). La UI dispara eventos al ViewModel, este interactúa con Use Cases/Repositorios, y actualiza un `StateFlow` que la UI observa.
+1. **Polimorfismo Nutricional**: Una `Receta` es tratada como un `Alimento`. Esto permite que tanto el `RegistroDiario` como los `ItemPlan` operen sobre una base común, permitiendo añadir una manzana (alimento simple) o una paella (receta) indistintamente.
+2. **Patrón Snapshot**: El `RegistroDiario` no referencia dinámicamente los macros del alimento original. Al añadir un consumo, se realiza una copia física de los macros (Kcal, P, HC, G) en la entrada del log. Esto garantiza que el historial del usuario sea inalterable aunque la receta o el alimento original cambien sus valores en el futuro.
+3. **Estructura de Planes (Templates)**: Un `Plan` es un conjunto de `ItemPlan` organizados por `MomentoComida` (Desayuno, Almuerzo, Cena, Snacks). No representa un consumo real, sino una plantilla que el usuario puede "aplicar" a cualquier día de su calendario.
+4. **Cálculo del Consumo Diario**: El Dashboard realiza una agregación reactiva de todos los `RegistroDiario` de la fecha seleccionada, restando el total consumido de los objetivos definidos en el perfil del `Usuario`.
 
 ---
 
@@ -59,7 +71,7 @@ Configuración de módulos de Koin para unir todas las capas.
 Tablas principales definidas:
 - `Usuario`: Perfil y objetivos nutricionales.
 - `Alimento`: Catálogo base de alimentos.
-- `Detalle_Receta`: Detalles extendidos (descripción, pasos, url, imagen).
-- `Ingrediente_Receta`: Estructura de recetas compuestas.
+- `Detalle_Receta`: Detalles extendidos (descripción, pasos de preparación, enlace web, URL de imagen local/remota).
+- `Ingrediente_Receta`: Estructura de recetas compuestas con cálculo de macros por 100g.
 - `Plan` / `Item_Plan`: Plantillas de alimentación.
 - `Registro_Diario`: Log de consumo con macros congelados.

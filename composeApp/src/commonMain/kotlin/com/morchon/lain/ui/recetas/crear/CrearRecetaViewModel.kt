@@ -9,6 +9,7 @@ import com.morchon.lain.domain.model.Receta
 import com.morchon.lain.domain.repository.AlimentoRepository
 import com.morchon.lain.domain.repository.RecetaRepository
 import com.morchon.lain.domain.repository.UsuarioRepository
+import com.morchon.lain.ui.core.util.ImageManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,8 @@ class CrearRecetaViewModel(
     savedStateHandle: SavedStateHandle,
     private val repository: RecetaRepository,
     private val alimentoRepository: AlimentoRepository,
-    private val usuarioRepository: UsuarioRepository
+    private val usuarioRepository: UsuarioRepository,
+    private val imageManager: ImageManager? = null
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CrearRecetaState())
@@ -59,6 +61,7 @@ class CrearRecetaViewModel(
                             descripcion = r.descripcion,
                             pasosPreparacion = r.pasosPreparacion ?: "",
                             enlaceUrl = r.enlaceUrl ?: "",
+                            imagenUrl = r.imagenUrl,
                             ingredientesAñadidos = r.ingredientes,
                             kcalTotales = r.kcalPor100g, // Cuidado: Receta carga lo guardado por 100g
                             proteinasTotales = r.proteinasPor100g,
@@ -90,7 +93,7 @@ class CrearRecetaViewModel(
     }
 
     fun onImagenSeleccionada(bytes: ByteArray?) {
-        _state.update { it.copy(imagenByteArray = bytes) }
+        _state.update { it.copy(imagenByteArray = bytes, imagenUrl = if (bytes == null) null else it.imagenUrl) }
     }
 
     // --- BÚSQUEDA DE ALIMENTOS EN API ---
@@ -184,6 +187,11 @@ class CrearRecetaViewModel(
             val usuarioActual = usuarioRepository.obtenerUsuarioActivo().firstOrNull()
             val finalUsuarioId = usuarioActual?.id ?: "usuario_anonimo"
 
+            // GESTIÓN DE IMAGEN: Si hay un ByteArray, lo guardamos en disco
+            val rutaImagenFinal = estadoActual.imagenByteArray?.let { bytes ->
+                imageManager?.saveImage(bytes)
+            } ?: _state.value.enlaceUrl // O mantener la existente si es edición (necesitaríamos cargarla en el state)
+
             // Cálculo de macros por 100g
             val pesoTotal = estadoActual.ingredientesAñadidos.sumOf { it.cantidadEnGramos.toDouble() }.toFloat()
             val factor100g = if (pesoTotal > 0) 100f / pesoTotal else 0f
@@ -197,6 +205,7 @@ class CrearRecetaViewModel(
                 enlaceUrl = estadoActual.enlaceUrl,
                 usuarioId = finalUsuarioId,
                 ingredientes = estadoActual.ingredientesAñadidos,
+                imagenUrl = rutaImagenFinal,
                 // Guardamos los macros calculados para 100g
                 kcalPor100g = estadoActual.kcalTotales * factor100g,
                 proteinasPor100g = estadoActual.proteinasTotales * factor100g,

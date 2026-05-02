@@ -20,7 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.morchon.lain.domain.model.Alimento 
-import com.morchon.lain.ui.core.util.rememberImagePicker
+import com.morchon.lain.ui.core.util.rememberCameraManager
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +32,7 @@ fun CrearRecetaScreen(
     val state by viewModel.state.collectAsState()
 
     // --- LÓGICA DE IMAGEN ---
-    val imagePicker = rememberImagePicker { bytes ->
+    val cameraManager = rememberCameraManager { bytes ->
         viewModel.onImagenSeleccionada(bytes)
     }
     var mostrarMenuImagen by remember { mutableStateOf(false) }
@@ -104,9 +104,11 @@ fun CrearRecetaScreen(
                         .clickable { mostrarMenuImagen = true },
                     contentAlignment = Alignment.Center
                 ) {
-                    if (state.imagenByteArray != null) {
+                    val imagenAMostrar = state.imagenByteArray ?: state.imagenUrl
+                    
+                    if (imagenAMostrar != null) {
                         AsyncImage(
-                            model = state.imagenByteArray,
+                            model = imagenAMostrar,
                             contentDescription = "Imagen de la receta",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
@@ -149,7 +151,7 @@ fun CrearRecetaScreen(
                                 headlineContent = { Text("Cámara") },
                                 leadingContent = { Icon(Icons.Default.CameraAlt, null) },
                                 modifier = Modifier.clickable {
-                                    imagePicker.takePicture()
+                                    cameraManager.capturarFoto()
                                     mostrarMenuImagen = false
                                 }
                             )
@@ -157,7 +159,7 @@ fun CrearRecetaScreen(
                                 headlineContent = { Text("Galería") },
                                 leadingContent = { Icon(Icons.Default.PhotoLibrary, null) },
                                 modifier = Modifier.clickable {
-                                    imagePicker.pickImage()
+                                    cameraManager.seleccionarDeGaleria()
                                     mostrarMenuImagen = false
                                 }
                             )
