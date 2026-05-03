@@ -16,13 +16,18 @@ import kotlinx.datetime.toLocalDateTime
  */
 class RegistrarConsumoUseCase(
     private val registroRepository: RegistroDiarioRepository,
-    private val usuarioRepository: UsuarioRepository
+    private val usuarioRepository: UsuarioRepository,
+    private val alimentoRepository: com.morchon.lain.domain.repository.AlimentoRepository
 ) {
     suspend operator fun invoke(
         alimento: Alimento,
         cantidadGramos: Double,
         momentoComida: MomentoComida
     ) {
+        // 1. Persistimos el alimento en el catálogo local (caché de recientes/frecuentes)
+        alimentoRepository.guardarAlimentoLocal(alimento)
+
+        // 2. Registramos la ingesta
         val usuario = usuarioRepository.obtenerUsuarioActivo().first() ?: return
         val hoy = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 

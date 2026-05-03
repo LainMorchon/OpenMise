@@ -14,4 +14,9 @@ interface AlimentoRepository {
     suspend fun buscarAlimentos(query: String, type: String = "all"): List<Alimento>
 
     suspend fun guardarAlimentoLocal(alimento: Alimento)
+
+    /**
+     * Obtiene todos los alimentos guardados localmente (caché de búsquedas previas).
+     */
+    suspend fun obtenerAlimentosLocales(): List<Alimento>
 }

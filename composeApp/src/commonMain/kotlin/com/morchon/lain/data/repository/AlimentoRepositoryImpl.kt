@@ -2,8 +2,10 @@ package com.morchon.lain.data.repository
 
 import com.morchon.lain.data.remote.FatSecretApiService
 import com.morchon.lain.data.mapper.aAlimentoEntity
+import com.morchon.lain.data.mapper.aDominio
 import com.morchon.lain.domain.model.Alimento
 import com.morchon.lain.domain.repository.AlimentoRepository
+import kotlinx.coroutines.flow.first
 
 class AlimentoRepositoryImpl(
     private val apiService: FatSecretApiService,
@@ -12,6 +14,10 @@ class AlimentoRepositoryImpl(
 
     override suspend fun guardarAlimentoLocal(alimento: Alimento) {
         alimentoDao.insertarAlimento(alimento.aAlimentoEntity())
+    }
+
+    override suspend fun obtenerAlimentosLocales(): List<Alimento> {
+        return alimentoDao.obtenerTodosLosAlimentos().first().map { it.aDominio() }
     }
 
     override suspend fun buscarAlimentos(query: String, type: String): List<Alimento> {

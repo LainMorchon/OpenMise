@@ -37,7 +37,7 @@ val domainModule = module {
     factory { GuardarAlimentoLocalUseCase(get()) }
 
     // --- REGISTRO DIARIO ---
-    factory { RegistrarConsumoUseCase(get(), get()) }
+    factory { RegistrarConsumoUseCase(get(), get(), get()) }
     factory { ObtenerProgresoDiarioUseCase(get(), get()) }
     factory { BuscarConsumiblesUseCase(get(), get()) }
 }

@@ -51,7 +51,7 @@ UI declarativa con Compose.
     - `ui/home/`: Dashboard principal con barras de progreso nutricional.
     - `ui/recetas/`: Creación y listado de recetas complejas.
     - `ui/planes/`: Gestión de plantillas de comidas semanales o diarias.
-    - `ui/registro/`: Flujo de búsqueda y adición de alimentos al log diario.
+    - `ui/consumo/`: Flujo de búsqueda y adición de alimentos al log diario (Buscador polimórfico).
     - `ui/perfil/`: Configuración de objetivos y datos físicos del usuario.
 
 ### 🔴 Inyección de Dependencias (`di/`)

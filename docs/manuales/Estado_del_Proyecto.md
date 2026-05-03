@@ -18,7 +18,7 @@ El proyecto sigue una arquitectura **Clean Architecture** estricta, asegurando q
     - **Recetas:** `ObtenerRecetasUseCase`, `ObtenerDetalleRecetaUseCase`, `EliminarRecetaUseCase`, `GuardarRecetaUseCase`.
     - **Usuario:** `LoginUseCase`, `RegistrarUsuarioUseCase`, `ObtenerUsuarioActivoUseCase`, `CerrarSesionUseCase`, `ActualizarObjetivosUseCase`.
     - **Alimentos:** `BuscarAlimentosUseCase`, `GuardarAlimentoLocalUseCase`.
-    - **Registro Diario:** `RegistrarConsumoUseCase`, `ObtenerProgresoDiarioUseCase`.
+    - **Consumo:** `BuscarConsumiblesUseCase`, `RegistrarConsumoUseCase`, `ObtenerProgresoDiarioUseCase`.
 
 ### 🔵 Capa de Datos
 - **Room KMP (v6):** `AppDatabase`, `AlimentoEntity`, `UsuarioEntity` (con objetivos), `DetalleRecetaEntity`, `IngredienteRecetaEntity`, `RegistroDiarioEntity`.

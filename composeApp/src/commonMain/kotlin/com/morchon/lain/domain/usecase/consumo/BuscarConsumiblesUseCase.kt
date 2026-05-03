@@ -14,19 +14,22 @@ class BuscarConsumiblesUseCase(
     private val recetaRepository: RecetaRepository
 ) {
     suspend operator fun invoke(query: String): List<Alimento> {
-        if (query.isBlank()) return emptyList()
-
-        // 1. Buscamos alimentos en el repositorio (API + Cache Local)
-        val alimentos = alimentoRepository.buscarAlimentos(query, "all")
-
-        // 2. Buscamos recetas en el repositorio local
-        // Filtramos manualmente por nombre ya que el repo nos da todas por ahora
+        // 1. Buscamos recetas (Siempre mostramos las locales si query es vacío)
         val todasLasRecetas = recetaRepository.obtenerTodasLasRecetas().first()
-        val recetasFiltradas = todasLasRecetas.filter { 
-            it.nombre.contains(query, ignoreCase = true) 
+        val recetasFiltradas = if (query.isBlank()) {
+            todasLasRecetas
+        } else {
+            todasLasRecetas.filter { it.nombre.contains(query, ignoreCase = true) }
         }
 
-        // Combinamos ambas listas (Receta hereda de Alimento)
+        // 2. Buscamos alimentos
+        val alimentos = if (query.isBlank()) {
+            // Si no hay query, mostramos los que ya tenemos guardados localmente (historial/caché)
+            alimentoRepository.obtenerAlimentosLocales()
+        } else {
+            alimentoRepository.buscarAlimentos(query, "all")
+        }
+
         return recetasFiltradas + alimentos
     }
 }

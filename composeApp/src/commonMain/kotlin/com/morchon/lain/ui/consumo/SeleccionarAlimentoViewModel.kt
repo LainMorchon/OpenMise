@@ -24,18 +24,25 @@ class SeleccionarAlimentoViewModel(
 
     private var searchJob: Job? = null
 
+    init {
+        // Carga inicial para mostrar recetas locales y alimentos sugeridos
+        buscar("")
+    }
+
     fun onQueryChange(nuevaQuery: String) {
         _estado.update { it.copy(query = nuevaQuery) }
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            delay(500) // Debounce para no saturar la búsqueda
-            if (nuevaQuery.length > 2) {
-                _estado.update { it.copy(cargando = true) }
-                val resultados = buscarConsumiblesUseCase(nuevaQuery)
-                _estado.update { it.copy(listaResultados = resultados, cargando = false) }
-            } else {
-                _estado.update { it.copy(listaResultados = emptyList()) }
-            }
+            delay(500) // Debounce
+            buscar(nuevaQuery)
+        }
+    }
+
+    private fun buscar(query: String) {
+        viewModelScope.launch {
+            _estado.update { it.copy(cargando = true) }
+            val resultados = buscarConsumiblesUseCase(query)
+            _estado.update { it.copy(listaResultados = resultados, cargando = false) }
         }
     }
 
