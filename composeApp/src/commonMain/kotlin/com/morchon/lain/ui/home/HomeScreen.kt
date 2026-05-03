@@ -24,6 +24,7 @@ fun HomeScreen(
     alNavegarRecetario: () -> Unit,
     alNavegarCrearReceta: () -> Unit,
     alNavegarAPerfil: () -> Unit,
+    alNavegarASeleccionarAlimento: () -> Unit,
     alCerrarSesion: () -> Unit
 ) {
     val estado by viewModel.estado.collectAsState()
@@ -75,6 +76,15 @@ fun HomeScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = alNavegarASeleccionarAlimento,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Añadir Consumo")
+            }
         },
         bottomBar = {
             BarraNavegacionInferior(
@@ -234,6 +244,7 @@ fun HomePreview() {
             alNavegarRecetario = {},
             alNavegarCrearReceta = {},
             alNavegarAPerfil = {},
+            alNavegarASeleccionarAlimento = {},
             alCerrarSesion = {}
         )
     }

@@ -9,6 +9,7 @@ import com.morchon.lain.ui.core.navigation.Rutas
 import com.morchon.lain.ui.home.HomeScreen
 import com.morchon.lain.ui.home.HomeViewModel
 import com.morchon.lain.ui.login.LoginScreen
+import com.morchon.lain.ui.consumo.SeleccionarAlimentoScreen
 import com.morchon.lain.ui.perfil.PerfilScreen
 import com.morchon.lain.ui.perfil.PerfilViewModel
 import com.morchon.lain.ui.registro.RegistroScreen
@@ -63,11 +64,19 @@ fun App() {
                         alNavegarRecetario = { navController.navigate(Rutas.Recetario.ruta) },
                         alNavegarCrearReceta = { navController.navigate(Rutas.CrearReceta.crearRuta()) },
                         alNavegarAPerfil = { navController.navigate(Rutas.Perfil.ruta) },
+                        alNavegarASeleccionarAlimento = { navController.navigate(Rutas.SeleccionarAlimento.ruta) },
                         alCerrarSesion = {
                             navController.navigate(Rutas.Login.ruta) {
                                 popUpTo(Rutas.Home.ruta) { inclusive = true }
                             }
                         }
+                    )
+                }
+
+                // PANTALLA SELECCIONAR ALIMENTO
+                composable(Rutas.SeleccionarAlimento.ruta) {
+                    SeleccionarAlimentoScreen(
+                        onNavigateBack = { navController.popBackStack() }
                     )
                 }
 

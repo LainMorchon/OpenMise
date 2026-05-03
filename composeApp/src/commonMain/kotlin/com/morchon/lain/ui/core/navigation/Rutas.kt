@@ -14,4 +14,5 @@ sealed class Rutas(val ruta: String) {
     }
     data object Registro : Rutas("registro")
     data object Perfil : Rutas("perfil")
+    data object SeleccionarAlimento : Rutas("seleccionar_alimento")
 }
