@@ -11,4 +11,9 @@ open class Alimento(
     val proteinasPor100g: Float,
     val carbohidratosPor100g: Float,
     val grasasPor100g: Float
-)
+) {
+    fun calcularKcal(gramos: Double): Double = (kcalPor100g * gramos) / 100.0
+    fun calcularProteinas(gramos: Double): Double = (proteinasPor100g * gramos) / 100.0
+    fun calcularCarbohidratos(gramos: Double): Double = (carbohidratosPor100g * gramos) / 100.0
+    fun calcularGrasas(gramos: Double): Double = (grasasPor100g * gramos) / 100.0
+}

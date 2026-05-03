@@ -3,6 +3,7 @@ package com.morchon.lain.di
 import com.morchon.lain.ui.login.LoginViewModel
 import com.morchon.lain.ui.registro.RegistroViewModel
 import com.morchon.lain.ui.home.HomeViewModel
+import com.morchon.lain.ui.perfil.PerfilViewModel
 import com.morchon.lain.ui.recetas.crear.CrearRecetaViewModel
 import com.morchon.lain.ui.recetas.detalle.DetalleRecetaViewModel
 import com.morchon.lain.ui.recetas.listado.ListadoRecetasViewModel
@@ -18,8 +19,11 @@ val uiModule = module {
     // Registro: requiere RegistrarUsuarioUseCase
     viewModel { RegistroViewModel(get()) }
     
-    // Home: requiere ObtenerUsuarioActivoUseCase y CerrarSesionUseCase
-    viewModel { HomeViewModel(get(), get()) }
+    // Home: requiere ObtenerUsuarioActivoUseCase, CerrarSesionUseCase y ObtenerProgresoDiarioUseCase
+    viewModel { HomeViewModel(get(), get(), get()) }
+
+    // Perfil: requiere ObtenerUsuarioActivoUseCase y ActualizarObjetivosUseCase
+    viewModel { PerfilViewModel(get(), get()) }
     
     // Crear Receta: requiere SavedStateHandle + 5 UseCases obligatorios
     viewModel { handle -> 

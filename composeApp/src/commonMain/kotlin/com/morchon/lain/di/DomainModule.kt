@@ -6,6 +6,9 @@ import com.morchon.lain.domain.usecase.recetas.EliminarRecetaUseCase
 import com.morchon.lain.domain.usecase.recetas.GuardarRecetaUseCase
 import com.morchon.lain.domain.usecase.recetas.ObtenerDetalleRecetaUseCase
 import com.morchon.lain.domain.usecase.recetas.ObtenerRecetasUseCase
+import com.morchon.lain.domain.usecase.registro.ObtenerProgresoDiarioUseCase
+import com.morchon.lain.domain.usecase.registro.RegistrarConsumoUseCase
+import com.morchon.lain.domain.usecase.usuario.ActualizarObjetivosUseCase
 import com.morchon.lain.domain.usecase.usuario.CerrarSesionUseCase
 import com.morchon.lain.domain.usecase.usuario.LoginUseCase
 import com.morchon.lain.domain.usecase.usuario.ObtenerUsuarioActivoUseCase
@@ -26,8 +29,13 @@ val domainModule = module {
     factory { RegistrarUsuarioUseCase(get()) }
     factory { ObtenerUsuarioActivoUseCase(get()) }
     factory { CerrarSesionUseCase(get()) }
+    factory { ActualizarObjetivosUseCase(get()) }
 
     // --- ALIMENTOS ---
     factory { BuscarAlimentosUseCase(get()) }
     factory { GuardarAlimentoLocalUseCase(get()) }
+
+    // --- REGISTRO DIARIO ---
+    factory { RegistrarConsumoUseCase(get(), get()) }
+    factory { ObtenerProgresoDiarioUseCase(get(), get()) }
 }

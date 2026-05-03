@@ -7,8 +7,10 @@ import org.koin.dsl.module
 import com.morchon.lain.data.repository.RecetaRepositoryImpl
 import com.morchon.lain.domain.repository.RecetaRepository
 import com.morchon.lain.data.remote.FatSecretApiService
-import com.morchon.lain.domain.repository.AlimentoRepository
 import com.morchon.lain.data.repository.AlimentoRepositoryImpl
+import com.morchon.lain.data.repository.RegistroDiarioRepositoryImpl
+import com.morchon.lain.domain.repository.AlimentoRepository
+import com.morchon.lain.domain.repository.RegistroDiarioRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
@@ -60,4 +62,8 @@ val dataModule = module {
     single { get<AppDatabase>().alimentoDao() }
     // 5. Proveemos el Repositorio de Recetas
     single<RecetaRepository> { RecetaRepositoryImpl(get(), get()) }
+
+    // --- REGISTRO DIARIO ---
+    single { get<AppDatabase>().registroDiarioDao() }
+    single<RegistroDiarioRepository> { RegistroDiarioRepositoryImpl(get()) }
 }

@@ -23,6 +23,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
     alNavegarRecetario: () -> Unit,
     alNavegarCrearReceta: () -> Unit,
+    alNavegarAPerfil: () -> Unit,
     alCerrarSesion: () -> Unit
 ) {
     val estado by viewModel.estado.collectAsState()
@@ -48,9 +49,12 @@ fun HomeScreen(
                             onDismissRequest = { mostrarMenu = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Editar Perfil (Próximamente)") },
-                                onClick = { mostrarMenu = false },
-                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
+                                text = { Text("Editar Perfil") },
+                                onClick = { 
+                                    mostrarMenu = false
+                                    alNavegarAPerfil()
+                                },
+                                leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null) }
                             )
                             HorizontalDivider()
                             DropdownMenuItem(
@@ -110,15 +114,32 @@ fun HomeScreen(
                 ) {
                     Text("Calorías Consumidas", fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
-                    // Simulamos un anillo de progreso (50%)
-                    CircularProgressIndicator(
-                        progress = { 0.5f },
-                        modifier = Modifier.size(100.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 8.dp
+                    
+                    val progresoKcal = if (estado.progreso.kcalObjetivo > 0) {
+                        (estado.progreso.kcalConsumidas / estado.progreso.kcalObjetivo).toFloat()
+                    } else 0f
+                    
+                    Box(contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            progress = { progresoKcal.coerceIn(0f, 1f) },
+                            modifier = Modifier.size(120.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            strokeWidth = 10.dp
+                        )
+                        Text(
+                            text = "${progresoKcal.times(100).toInt()}%",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "${estado.progreso.kcalConsumidas.toInt()} / ${estado.progreso.kcalObjetivo} kcal",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("1000 / 2000 kcal", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -130,11 +151,26 @@ fun HomeScreen(
                     Text("Macronutrientes", fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    BarraMacro("Proteínas", 80, 150, Color(0xFFE57373))
-                    Spacer(modifier = Modifier.height(8.dp))
-                    BarraMacro("Carbohidratos", 120, 200, Color(0xFF64B5F6))
-                    Spacer(modifier = Modifier.height(8.dp))
-                    BarraMacro("Grasas", 40, 65, Color(0xFFFFD54F))
+                    BarraMacro(
+                        nombre = "Proteínas",
+                        consumido = estado.progreso.proteinasConsumidas.toInt(),
+                        total = estado.progreso.proteinasObjetivo,
+                        color = Color(0xFFE57373)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    BarraMacro(
+                        nombre = "Carbohidratos",
+                        consumido = estado.progreso.carbohidratosConsumidos.toInt(),
+                        total = estado.progreso.carbohidratosObjetivo,
+                        color = Color(0xFF64B5F6)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    BarraMacro(
+                        nombre = "Grasas",
+                        consumido = estado.progreso.grasasConsumidas.toInt(),
+                        total = estado.progreso.grasasObjetivo,
+                        color = Color(0xFFFFD54F)
+                    )
                 }
             }
         }
@@ -197,6 +233,7 @@ fun HomePreview() {
         HomeScreen(
             alNavegarRecetario = {},
             alNavegarCrearReceta = {},
+            alNavegarAPerfil = {},
             alCerrarSesion = {}
         )
     }

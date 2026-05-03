@@ -9,6 +9,8 @@ import com.morchon.lain.ui.core.navigation.Rutas
 import com.morchon.lain.ui.home.HomeScreen
 import com.morchon.lain.ui.home.HomeViewModel
 import com.morchon.lain.ui.login.LoginScreen
+import com.morchon.lain.ui.perfil.PerfilScreen
+import com.morchon.lain.ui.perfil.PerfilViewModel
 import com.morchon.lain.ui.registro.RegistroScreen
 import com.morchon.lain.ui.recetas.crear.CrearRecetaScreen
 import com.morchon.lain.ui.recetas.detalle.DetalleRecetaScreen
@@ -60,11 +62,21 @@ fun App() {
                         viewModel = homeViewModel,
                         alNavegarRecetario = { navController.navigate(Rutas.Recetario.ruta) },
                         alNavegarCrearReceta = { navController.navigate(Rutas.CrearReceta.crearRuta()) },
+                        alNavegarAPerfil = { navController.navigate(Rutas.Perfil.ruta) },
                         alCerrarSesion = {
                             navController.navigate(Rutas.Login.ruta) {
                                 popUpTo(Rutas.Home.ruta) { inclusive = true }
                             }
                         }
+                    )
+                }
+
+                // PANTALLA PERFIL
+                composable(Rutas.Perfil.ruta) {
+                    val perfilViewModel = koinViewModel<PerfilViewModel>()
+                    PerfilScreen(
+                        viewModel = perfilViewModel,
+                        onNavigateBack = { navController.popBackStack() }
                     )
                 }
 
