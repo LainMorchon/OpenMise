@@ -11,7 +11,16 @@ Aplicación multiplataforma de gestión nutricional. El núcleo radica en la est
 
 ---
 
-## 2. ARQUITECTURA DE PERSISTENCIA (Room KMP)
+## 2. ARQUITECTURA DE CAPAS Y RESPONSABILIDADES
+El proyecto sigue **Clean Architecture** para separar la infraestructura de la lógica de negocio.
+
+1.  **Capa de Dominio (`domain/`)**: Contiene los modelos, interfaces de repositorios y **Use Cases**. Es el corazón del sistema. **Toda la lógica de negocio debe residir aquí.**
+2.  **Capa de Datos (`data/`)**: Implementa los repositorios, gestiona Room KMP y Ktor. No contiene lógica de negocio, solo orquestación de fuentes de datos.
+3.  **Capa de Presentación (`ui/`)**: Contiene las pantallas y ViewModels. Los ViewModels solo gestionan el estado visual y delegan las acciones a los Use Cases.
+
+---
+
+## 3. ARQUITECTURA DE PERSISTENCIA (Room KMP)
 El esquema consta de 7 tablas normalizadas.
 
 * **Patrón Snapshot:** La tabla `Registro_Diario` no usa JOINs en tiempo real. Congela los macros (`historico_kcal`, etc.) en el momento del consumo para hacer el historial inmutable.

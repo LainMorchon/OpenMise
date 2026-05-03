@@ -5,10 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.morchon.lain.domain.model.Alimento
 import com.morchon.lain.domain.model.Ingrediente
-import com.morchon.lain.domain.model.Receta
-import com.morchon.lain.domain.repository.AlimentoRepository
-import com.morchon.lain.domain.repository.RecetaRepository
-import com.morchon.lain.domain.repository.UsuarioRepository
+import com.morchon.lain.domain.usecase.alimentos.BuscarAlimentosUseCase
+import com.morchon.lain.domain.usecase.alimentos.GuardarAlimentoLocalUseCase
+import com.morchon.lain.domain.usecase.recetas.GuardarRecetaUseCase
+import com.morchon.lain.domain.usecase.recetas.ObtenerDetalleRecetaUseCase
+import com.morchon.lain.domain.usecase.usuario.ObtenerUsuarioActivoUseCase
 import com.morchon.lain.ui.core.util.ImageManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -16,16 +17,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CrearRecetaViewModel(
     savedStateHandle: SavedStateHandle,
-    private val repository: RecetaRepository,
-    private val alimentoRepository: AlimentoRepository,
-    private val usuarioRepository: UsuarioRepository,
-    private val imageManager: ImageManager? = null
+    private val obtenerDetalleRecetaUseCase: ObtenerDetalleRecetaUseCase,
+    private val buscarAlimentosUseCase: BuscarAlimentosUseCase,
+    private val guardarAlimentoLocalUseCase: GuardarAlimentoLocalUseCase,
+    private val guardarRecetaUseCase: GuardarRecetaUseCase,
+    private val obtenerUsuarioActivoUseCase: ObtenerUsuarioActivoUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CrearRecetaState())
@@ -53,22 +54,20 @@ class CrearRecetaViewModel(
 
     private fun cargarRecetaParaEditar(id: String) {
         viewModelScope.launch {
-            repository.obtenerRecetaCompleta(id).take(1).collect { receta ->
-                receta?.let { r ->
-                    _state.update { 
-                        it.copy(
-                            nombre = r.nombre,
-                            descripcion = r.descripcion,
-                            pasosPreparacion = r.pasosPreparacion ?: "",
-                            enlaceUrl = r.enlaceUrl ?: "",
-                            imagenUrl = r.imagenUrl,
-                            ingredientesAñadidos = r.ingredientes,
-                            kcalTotales = r.kcalPor100g, // Cuidado: Receta carga lo guardado por 100g
-                            proteinasTotales = r.proteinasPor100g,
-                            carbohidratosTotales = r.carbohidratosPor100g,
-                            grasasTotales = r.grasasPor100g
-                        )
-                    }
+            obtenerDetalleRecetaUseCase(id).firstOrNull()?.let { r ->
+                _state.update { 
+                    it.copy(
+                        nombre = r.nombre,
+                        descripcion = r.descripcion,
+                        pasosPreparacion = r.pasosPreparacion ?: "",
+                        enlaceUrl = r.enlaceUrl ?: "",
+                        imagenUrl = r.imagenUrl,
+                        ingredientesAñadidos = r.ingredientes,
+                        kcalTotales = r.kcalPor100g,
+                        proteinasTotales = r.proteinasPor100g,
+                        carbohidratosTotales = r.carbohidratosPor100g,
+                        grasasTotales = r.grasasPor100g
+                    )
                 }
             }
         }
@@ -100,9 +99,6 @@ class CrearRecetaViewModel(
 
     fun onFiltroBusquedaCambiado(nuevoFiltro: String) {
         _state.update { it.copy(filtroBusqueda = nuevoFiltro) }
-        // Si ya hay algo escrito, re-disparamos la búsqueda con el nuevo filtro
-        val queryActual = _state.value.resultadosBusqueda.let { "" } // En una versión pro guardaríamos la query en el state
-        // Para simplificar, si cambia el filtro, que el usuario tenga que escribir o capturamos la query
     }
 
     fun buscarAlimento(query: String, tipo: String? = null) {
@@ -119,7 +115,7 @@ class CrearRecetaViewModel(
             _state.update { it.copy(estaBuscando = true, filtroBusqueda = tipoFinal) }
             
             try {
-                val resultados = alimentoRepository.buscarAlimentos(query, tipoFinal)
+                val resultados = buscarAlimentosUseCase(query, tipoFinal)
                 _state.update { it.copy(resultadosBusqueda = resultados, estaBuscando = false) }
             } catch (e: Exception) {
                 _state.update { it.copy(estaBuscando = false) }
@@ -127,13 +123,11 @@ class CrearRecetaViewModel(
         }
     }
 
-    // --- LA MAGIA: GESTIÓN DE INGREDIENTES Y MACROS ---
+    // --- GESTIÓN DE INGREDIENTES Y MACROS ---
 
     fun anadirIngrediente(alimentoBase: Alimento, gramos: Float) {
         viewModelScope.launch {
-            // Persistimos el alimento en la BD local antes de usarlo en la receta
-            // para garantizar integridad referencial (Foreign Key)
-            alimentoRepository.guardarAlimentoLocal(alimentoBase)
+            guardarAlimentoLocalUseCase(alimentoBase)
 
             val nuevoIngrediente = Ingrediente(alimento = alimentoBase, cantidadEnGramos = gramos)
 
@@ -142,10 +136,10 @@ class CrearRecetaViewModel(
 
                 estadoActual.copy(
                     ingredientesAñadidos = nuevaLista,
-                    kcalTotales = nuevaLista.map { it.kcalTotales }.sum(),
-                    proteinasTotales = nuevaLista.map { it.proteinasTotales }.sum(),
-                    carbohidratosTotales = nuevaLista.map { it.carbohidratosTotales }.sum(),
-                    grasasTotales = nuevaLista.map { it.grasasTotales }.sum()
+                    kcalTotales = nuevaLista.sumOf { it.kcalTotales.toDouble() }.toFloat(),
+                    proteinasTotales = nuevaLista.sumOf { it.proteinasTotales.toDouble() }.toFloat(),
+                    carbohidratosTotales = nuevaLista.sumOf { it.carbohidratosTotales.toDouble() }.toFloat(),
+                    grasasTotales = nuevaLista.sumOf { it.grasasTotales.toDouble() }.toFloat()
                 )
             }
         }
@@ -157,20 +151,12 @@ class CrearRecetaViewModel(
 
             estadoActual.copy(
                 ingredientesAñadidos = nuevaLista,
-                kcalTotales = nuevaLista.map { it.kcalTotales }.sum(),
-                proteinasTotales = nuevaLista.map { it.proteinasTotales }.sum(),
-                carbohidratosTotales = nuevaLista.map { it.carbohidratosTotales }.sum(),
-                grasasTotales = nuevaLista.map { it.grasasTotales }.sum()
+                kcalTotales = nuevaLista.sumOf { it.kcalTotales.toDouble() }.toFloat(),
+                proteinasTotales = nuevaLista.sumOf { it.proteinasTotales.toDouble() }.toFloat(),
+                carbohidratosTotales = nuevaLista.sumOf { it.carbohidratosTotales.toDouble() }.toFloat(),
+                grasasTotales = nuevaLista.sumOf { it.grasasTotales.toDouble() }.toFloat()
             )
         }
-    }
-
-    // --- GENERADOR DE IDs COMPATIBLE CON KMP ---
-    private fun generarIdUnico(): String {
-        val caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        return "RECETA_" + (1..16)
-            .map { caracteres.random() }
-            .joinToString("")
     }
 
     // --- GUARDADO FINAL ---
@@ -183,39 +169,26 @@ class CrearRecetaViewModel(
         _state.update { it.copy(estaGuardando = true) }
 
         viewModelScope.launch {
-            // Obtenemos el ID del usuario activo de verdad
-            val usuarioActual = usuarioRepository.obtenerUsuarioActivo().firstOrNull()
+            val usuarioActual = obtenerUsuarioActivoUseCase().firstOrNull()
             val finalUsuarioId = usuarioActual?.id ?: "usuario_anonimo"
 
-            // GESTIÓN DE IMAGEN: Si hay un ByteArray, lo guardamos en disco
-            val rutaImagenFinal = estadoActual.imagenByteArray?.let { bytes ->
-                imageManager?.saveImage(bytes)
-            } ?: _state.value.enlaceUrl // O mantener la existente si es edición (necesitaríamos cargarla en el state)
-
-            // Cálculo de macros por 100g
-            val pesoTotal = estadoActual.ingredientesAñadidos.sumOf { it.cantidadEnGramos.toDouble() }.toFloat()
-            val factor100g = if (pesoTotal > 0) 100f / pesoTotal else 0f
-
-            val nuevaReceta = Receta(
-                // Si estamos editando, mantenemos el ID original
-                id = recetaId ?: generarIdUnico(),
+            val resultado = guardarRecetaUseCase(
+                id = recetaId,
                 nombre = estadoActual.nombre,
                 descripcion = estadoActual.descripcion,
                 pasosPreparacion = estadoActual.pasosPreparacion,
                 enlaceUrl = estadoActual.enlaceUrl,
                 usuarioId = finalUsuarioId,
                 ingredientes = estadoActual.ingredientesAñadidos,
-                imagenUrl = rutaImagenFinal,
-                // Guardamos los macros calculados para 100g
-                kcalPor100g = estadoActual.kcalTotales * factor100g,
-                proteinasPor100g = estadoActual.proteinasTotales * factor100g,
-                carbohidratosPor100g = estadoActual.carbohidratosTotales * factor100g,
-                grasasPor100g = estadoActual.grasasTotales * factor100g
+                imagenUrl = estadoActual.imagenUrl,
+                imagenBytes = estadoActual.imagenByteArray
             )
 
-            repository.guardarReceta(nuevaReceta)
-
-            _state.update { it.copy(estaGuardando = false, guardadoExitoso = true) }
+            resultado.onSuccess {
+                _state.update { it.copy(estaGuardando = false, guardadoExitoso = true) }
+            }.onFailure {
+                _state.update { it.copy(estaGuardando = false) }
+            }
         }
     }
 }

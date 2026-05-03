@@ -1,6 +1,5 @@
 package com.morchon.lain.di
 
-import androidx.lifecycle.SavedStateHandle
 import com.morchon.lain.ui.login.LoginViewModel
 import com.morchon.lain.ui.registro.RegistroViewModel
 import com.morchon.lain.ui.home.HomeViewModel
@@ -11,11 +10,27 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val uiModule = module {
-    // Usamos 'viewModel' para que Koin y Compose gestionen su ciclo de vida correctamente
-    viewModel { LoginViewModel(get()) }
+    // Definición de ViewModels con sus dependencias (UseCases) actualizadas tras la refactorización
+    
+    // Login: requiere ObtenerUsuariosUseCase y LoginUseCase
+    viewModel { LoginViewModel(get(), get()) }
+    
+    // Registro: requiere RegistrarUsuarioUseCase
     viewModel { RegistroViewModel(get()) }
-    viewModel { HomeViewModel(get()) }
-    viewModel { handle -> CrearRecetaViewModel(handle.get(), get(), get(), get(), get()) }
+    
+    // Home: requiere ObtenerUsuarioActivoUseCase y CerrarSesionUseCase
+    viewModel { HomeViewModel(get(), get()) }
+    
+    // Crear Receta: requiere SavedStateHandle + 5 UseCases obligatorios
+    viewModel { handle -> 
+        CrearRecetaViewModel(handle.get(), get(), get(), get(), get(), get()) 
+    }
+    
+    // Listado Recetas: requiere ObtenerRecetasUseCase
     viewModel { ListadoRecetasViewModel(get()) }
-    viewModel { handle -> DetalleRecetaViewModel(handle.get(), get()) }
+    
+    // Detalle Receta: requiere SavedStateHandle + 2 UseCases obligatorios
+    viewModel { handle -> 
+        DetalleRecetaViewModel(handle.get(), get(), get())
+    }
 }

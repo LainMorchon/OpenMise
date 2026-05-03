@@ -8,7 +8,7 @@ data class Usuario(
     val id: String,
     val nombre: String,
     val email: String,
-   //TODO val objetivosNutricionales: ObjetivosNutricionales
+    val objetivos: ObjetivosNutricionales = ObjetivosNutricionales(),
     val estaLogeado: Boolean = true
 )
 

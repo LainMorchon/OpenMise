@@ -3,7 +3,8 @@ package com.morchon.lain.ui.recetas.detalle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.morchon.lain.domain.repository.RecetaRepository
+import com.morchon.lain.domain.usecase.recetas.EliminarRecetaUseCase
+import com.morchon.lain.domain.usecase.recetas.ObtenerDetalleRecetaUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +15,8 @@ import kotlinx.coroutines.launch
 
 class DetalleRecetaViewModel(
     savedStateHandle: SavedStateHandle,
-    private val repository: RecetaRepository
+    private val obtenerDetalleRecetaUseCase: ObtenerDetalleRecetaUseCase,
+    private val eliminarRecetaUseCase: EliminarRecetaUseCase
 ) : ViewModel() {
 
     private val recetaId: String = checkNotNull(savedStateHandle["recetaId"])
@@ -28,7 +30,7 @@ class DetalleRecetaViewModel(
 
     private fun cargarReceta() {
         viewModelScope.launch {
-            repository.obtenerRecetaCompleta(recetaId)
+            obtenerDetalleRecetaUseCase(recetaId)
                 .onStart { _state.update { it.copy(estaCargando = true) } }
                 .catch { error ->
                     _state.update { it.copy(estaCargando = false, error = error.message) }
@@ -53,7 +55,7 @@ class DetalleRecetaViewModel(
         _state.update { it.copy(mostrarConfirmacionBorrado = false, estaCargando = true) }
         viewModelScope.launch {
             try {
-                repository.eliminarReceta(recetaId)
+                eliminarRecetaUseCase(recetaId)
                 _state.update { it.copy(estaCargando = false, borradoExitoso = true) }
             } catch (e: Exception) {
                 _state.update { it.copy(estaCargando = false, error = e.message) }

@@ -3,7 +3,8 @@ package com.morchon.lain.ui.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.morchon.lain.domain.model.Usuario
-import com.morchon.lain.domain.repository.UsuarioRepository
+import com.morchon.lain.domain.usecase.usuario.LoginUseCase
+import com.morchon.lain.domain.usecase.usuario.ObtenerUsuariosUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,14 +13,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val usuarioRepository: UsuarioRepository
+    private val obtenerUsuariosUseCase: ObtenerUsuariosUseCase,
+    private val loginUseCase: LoginUseCase
 ): ViewModel() {
     private val _estado = MutableStateFlow(LoginState())
     val estado: StateFlow<LoginState> = _estado.asStateFlow()
 
     init {
         viewModelScope.launch {
-            usuarioRepository.obtenerTodosLosUsuarios().collect { usuarios ->
+            obtenerUsuariosUseCase().collect { usuarios ->
                 _estado.update { it.copy(usuariosRegistrados = usuarios) }
             }
         }
@@ -39,8 +41,6 @@ class LoginViewModel(
 
     fun hacerLogin() {
         val emailActual = _estado.value.email
-        // Nota: De momento no validamos contraseña contra BD real, 
-        // pero buscamos si el usuario existe por email.
         
         if(emailActual.isBlank()) {
             _estado.update { it.copy(error = "Introduce un email") }
@@ -50,10 +50,9 @@ class LoginViewModel(
         viewModelScope.launch {
             _estado.update { it.copy(estaCargando = true, error = null) }
             
-            val usuario = usuarioRepository.obtenerUsuarioPorEmail(emailActual)
+            val exito = loginUseCase(emailActual)
 
-            if (usuario != null) {
-                usuarioRepository.setUsuarioActivo(usuario.id)
+            if (exito) {
                 _estado.update { it.copy(estaCargando = false, loginExitoso = true) }
             } else {
                 _estado.update { it.copy(estaCargando = false, error = "Usuario no encontrado") }

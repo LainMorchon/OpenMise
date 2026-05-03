@@ -11,6 +11,7 @@ fun initKoin(modulosExtra: List<Module> = emptyList()) {
     startKoin {
         modules(
             dataModule,
+            domainModule,
             uiModule,
             *modulosExtra.toTypedArray()
         )

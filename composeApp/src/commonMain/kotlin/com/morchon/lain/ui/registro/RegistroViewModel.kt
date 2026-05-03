@@ -2,8 +2,7 @@ package com.morchon.lain.ui.registro
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.morchon.lain.domain.model.Usuario
-import com.morchon.lain.domain.repository.UsuarioRepository
+import com.morchon.lain.domain.usecase.usuario.RegistrarUsuarioUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class RegistroViewModel(
-    private val usuarioRepository: UsuarioRepository
+    private val registrarUsuarioUseCase: RegistrarUsuarioUseCase
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(RegistroState())
@@ -38,15 +37,13 @@ class RegistroViewModel(
         viewModelScope.launch {
             _estado.update { it.copy(estaCargando = true) }
             
-            val nuevoUsuario = Usuario(
-                id = "usr_${Random.nextInt(1000, 9999)}",
-                nombre = nombre,
-                email = email,
-                estaLogeado = false
-            )
+            val resultado = registrarUsuarioUseCase(nombre, email)
 
-            usuarioRepository.guardarUsuario(nuevoUsuario)
-            _estado.update { it.copy(estaCargando = false, registroExitoso = true) }
+            resultado.onSuccess {
+                _estado.update { it.copy(estaCargando = false, registroExitoso = true) }
+            }.onFailure { error ->
+                _estado.update { it.copy(estaCargando = false, error = error.message) }
+            }
         }
     }
 }

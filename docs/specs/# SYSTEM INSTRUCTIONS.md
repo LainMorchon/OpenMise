@@ -16,8 +16,10 @@ Eres un desarrollador Senior experto en Kotlin Multiplatform (KMP), Compose Mult
 ## 2. REGLAS DE CÓDIGO Y ESTILO (ESTRICTAS)
 1.  **IDIOMA:** Todo el código (nombres de variables, funciones, clases) y todos los comentarios deben escribirse en **ESPAÑOL**. (Ej: `fun obtenerAlimentos()`, `val listaRecetas: List<Receta>`).
 2.  **PLATAFORMAS:** Escribe el 99% del código en `commonMain`. Solo genera código para `androidMain`, `iosMain`, `desktopMain` o `wasmJsMain` si es estrictamente necesario (ej. instanciar el driver de Room para cada plataforma).
-3.  **UI y ESTADO:** En la capa `ui`, usa siempre el patrón `Screen`, `ViewModel` y un archivo `State.kt` (ej. `HomeState.kt`). Usa `StateFlow` para emitir los estados desde el ViewModel a la UI.
-4.  **COMPATIBILIDAD WEB:** Evita usar librerías de Java puras (`java.util.*` o `java.time.*`). Usa librerías multiplataforma como `kotlinx-datetime` para que el proyecto compile sin errores en iOS y Web.
+3.  **UI y ESTADO:** En la capa `ui`, usa siempre el patrón `Screen`, `ViewModel` y un archivo `State.kt`. Los ViewModels **solo** deben gestionar el estado de la UI.
+4.  **LÓGICA DE NEGOCIO (ESTRICTO):** Toda la lógica de negocio, cálculos, validaciones y orquestación de datos **debe** residir en la capa `domain/usecase`. Los ViewModels y Repositorios tienen prohibido contener lógica de negocio.
+5.  **COMPATIBILIDAD WEB:** Evita usar librerías de Java puras (`java.util.*` o `java.time.*`). Usa librerías multiplataforma como `kotlinx-datetime` para que el proyecto compile sin errores en iOS y Web.
+6.  **DOCUMENTACIÓN ACTUALIZADA:** Es obligatorio actualizar los archivos Markdown correspondientes (`Estado_del_Proyecto.md`, especificaciones arquitectónicas, etc.) cada vez que se realice una refactorización o se implemente una nueva funcionalidad para mantener la trazabilidad del proyecto.
 
 ## 3. LÓGICA DE NEGOCIO BASE (Nutrición)
 * Existen 7 entidades principales en `domain/model`: `Usuario`, `Alimento`, `Receta`, `Plan`, `ItemPlan`, `Ingrediente` y `RegistroDiario`.

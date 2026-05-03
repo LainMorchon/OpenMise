@@ -2,7 +2,7 @@ package com.morchon.lain.ui.recetas.listado
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.morchon.lain.domain.repository.RecetaRepository
+import com.morchon.lain.domain.usecase.recetas.ObtenerRecetasUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ListadoRecetasViewModel(
-    private val repository: RecetaRepository
+    private val obtenerRecetasUseCase: ObtenerRecetasUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ListadoRecetasState())
@@ -24,7 +24,7 @@ class ListadoRecetasViewModel(
 
     private fun cargarRecetas() {
         viewModelScope.launch {
-            repository.obtenerTodasLasRecetas()
+            obtenerRecetasUseCase()
                 .onStart { _state.update { it.copy(estaCargando = true) } }
                 .catch { error ->
                     _state.update { it.copy(estaCargando = false, error = error.message) }

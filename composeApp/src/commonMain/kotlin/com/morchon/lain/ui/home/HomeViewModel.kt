@@ -2,7 +2,8 @@ package com.morchon.lain.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.morchon.lain.domain.repository.UsuarioRepository
+import com.morchon.lain.domain.usecase.usuario.CerrarSesionUseCase
+import com.morchon.lain.domain.usecase.usuario.ObtenerUsuarioActivoUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,7 +11,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val usuarioRepository: UsuarioRepository
+    private val obtenerUsuarioActivoUseCase: ObtenerUsuarioActivoUseCase,
+    private val cerrarSesionUseCase: CerrarSesionUseCase
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(HomeState())
@@ -18,7 +20,7 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch {
-            usuarioRepository.obtenerUsuarioActivo().collect { usuario ->
+            obtenerUsuarioActivoUseCase().collect { usuario ->
                 _estado.update { it.copy(usuario = usuario) }
             }
         }
@@ -26,7 +28,7 @@ class HomeViewModel(
 
     fun cerrarSesion() {
         viewModelScope.launch {
-            usuarioRepository.cerrarSesion()
+            cerrarSesionUseCase()
             _estado.update { it.copy(sesionCerrada = true) }
         }
     }

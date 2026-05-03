@@ -30,7 +30,7 @@
     * `util/`: `CameraManager.kt` (Gestión de cámara/galería KMP), `ImageManager.kt`.
 * **`home/`**, **`detail/`**, **`plan/`** (Features):
     * `XXXScreen.kt`: El código UI de la pantalla.
-    * `XXXViewModel.kt`: Gestión de la lógica de pantalla.
+    * `XXXViewModel.kt`: Gestión del estado de la interfaz. **Prohibido incluir lógica de negocio aquí.**
     * `XXXState.kt`: Clase que define el estado (ej: `data class HomeState(val foods: List<Food>, val isLoading: Boolean)`).
 
 ### 🔴 di/ (Inyección de Dependencias)
@@ -40,6 +40,10 @@
 
 ## 2. LÓGICA DE DATOS Y ESTADOS
 
-1. **Herencia & Polimorfismo:** `Receta` hereda de `Alimento`. Esto permite que cualquier pantalla que acepte un alimento pueda mostrar una receta sin cambiar el código.
+1. **Separación de Responsabilidades (ESTRICTO):** 
+    * Los **ViewModels** solo gestionan el estado de la UI y llaman a UseCases. No deben instanciar ni llamar directamente a utilidades de infraestructura (como `ImageManager` o `CameraManager`) si el resultado de estas operaciones debe ser procesado por la lógica de negocio.
+    * Los **Use Cases** orquestan tanto la lógica pura como el uso de utilidades necesarias para completar una acción de negocio (ej: procesar una imagen antes de guardarla).
+    * Los **Repositorios** solo orquestan el origen de los datos (Local vs Remote).
+2. **Herencia & Polimorfismo:** `Receta` hereda de `Alimento`. Esto permite que cualquier pantalla que acepte un alimento pueda mostrar una receta sin cambiar el código.
 2. **Patrón Snapshot:** El `RegistroDiario` guarda los valores nutricionales actuales en el momento del consumo (`historico_kcal`), evitando que el historial cambie si el alimento original se edita en la API o base de datos.
 3. **Manejo de Estados:** Cada ViewModel expone un `StateFlow<UIState>` que la pantalla observa para reaccionar a cambios.
