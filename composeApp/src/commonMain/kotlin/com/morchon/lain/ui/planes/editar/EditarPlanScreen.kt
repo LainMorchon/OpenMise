@@ -1,11 +1,15 @@
 package com.morchon.lain.ui.planes.editar
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
@@ -14,13 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.morchon.lain.domain.model.Plan
 import com.morchon.lain.domain.model.ItemPlan
 import com.morchon.lain.domain.model.MomentoComida
 import com.morchon.lain.ui.consumo.SeleccionarAlimentoViewModel
 import com.morchon.lain.ui.consumo.ConsumibleItem
 import com.morchon.lain.ui.consumo.DialogoConfigurarConsumo
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,15 +33,11 @@ fun EditarPlanScreen(
     viewModel: EditarPlanViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    
-    // Necesitamos el buscador para añadir alimentos al plan
     val buscadorViewModel: SeleccionarAlimentoViewModel = koinViewModel()
     val buscadorEstado by buscadorViewModel.estado.collectAsState()
 
     LaunchedEffect(state.guardadoExitoso) {
-        if (state.guardadoExitoso) {
-            onNavigateBack()
-        }
+        if (state.guardadoExitoso) onNavigateBack()
     }
 
     Scaffold(
@@ -68,12 +68,12 @@ fun EditarPlanScreen(
             }
         } else {
             Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-                // Cabecera: Nombre y Tipo
+                // Configuración básica del Plan
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         OutlinedTextField(
                             value = state.plan.nombre,
                             onValueChange = { viewModel.onNombreChanged(it) },
@@ -82,10 +82,10 @@ fun EditarPlanScreen(
                             singleLine = true
                         )
                         
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         
                         Text("Tipo de Plan:", style = MaterialTheme.typography.labelLarge)
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf("DIA_UNICO", "SEMANAL").forEach { tipo ->
                                 FilterChip(
                                     selected = state.plan.tipo == tipo,
@@ -94,38 +94,78 @@ fun EditarPlanScreen(
                                 )
                             }
                         }
+
+                        if (state.plan.tipo == "SEMANAL") {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("Día seleccionado:", style = MaterialTheme.typography.labelLarge)
+                            Row(
+                                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                (1..7).forEach { dia ->
+                                    FilterChip(
+                                        selected = state.indiceDiaSeleccionado == dia,
+                                        onClick = { viewModel.onDiaSeleccionado(dia) },
+                                        label = { Text("Día $dia") }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
-                Text(
-                    text = "Alimentos en el plan",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
+                // Cabecera de la lista de alimentos
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (state.plan.tipo == "SEMANAL") "Alimentos Día ${state.indiceDiaSeleccionado}" else "Alimentos en el plan",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    
+                    if (state.listaPlanesDisponibles.isNotEmpty()) {
+                        TextButton(onClick = { viewModel.toggleDialogoPlantilla(true) }) {
+                            Icon(Icons.Default.ContentPaste, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Usar plantilla")
+                        }
+                    }
+                }
 
-                if (state.plan.items.isEmpty()) {
+                // Lista de alimentos filtrada por día
+                val itemsFiltrados = remember(state.plan.items, state.indiceDiaSeleccionado) {
+                    state.plan.items.filter { it.indiceDia == state.indiceDiaSeleccionado }
+                }
+
+                if (itemsFiltrados.isEmpty()) {
                     Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text("No hay alimentos en este plan", color = MaterialTheme.colorScheme.outline)
+                        Text("No hay alimentos para este día", color = MaterialTheme.colorScheme.outline)
                     }
                 } else {
                     LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                        items(state.plan.items) { item ->
-                            ItemPlanRow(
-                                item = item,
-                                onDelete = { viewModel.eliminarItem(item) }
-                            )
+                        items(itemsFiltrados) { item ->
+                            ItemPlanRow(item = item, onDelete = { viewModel.eliminarItem(item) })
                             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         }
                     }
                 }
                 
-                // Resumen Macros totales del plan (opcional pero útil)
-                ResumenMacrosPlan(items = state.plan.items)
+                ResumenMacrosPlan(items = itemsFiltrados)
             }
         }
     }
 
-    // Modal del Buscador de Alimentos
+    // Modales y Diálogos
+    if (state.showDialogoSeleccionarPlantilla) {
+        DialogoSeleccionarPlantilla(
+            planes = state.listaPlanesDisponibles,
+            onPlanSelected = { viewModel.aplicarPlantillaADia(it) },
+            onDismiss = { viewModel.toggleDialogoPlantilla(false) }
+        )
+    }
+
     if (state.showBuscadorAlimentos) {
         ModalBuscadorAlimentos(
             estado = buscadorEstado,
@@ -135,7 +175,6 @@ fun EditarPlanScreen(
         )
     }
 
-    // Diálogo de configuración del alimento seleccionado en el buscador
     buscadorEstado.alimentoSeleccionado?.let { alimento ->
         DialogoConfigurarConsumo(
             alimento = alimento,
@@ -154,6 +193,31 @@ fun EditarPlanScreen(
             onDismiss = { buscadorViewModel.seleccionarAlimento(null) }
         )
     }
+}
+
+@Composable
+fun DialogoSeleccionarPlantilla(
+    planes: List<Plan>,
+    onPlanSelected: (Plan) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Copiar desde Plan") },
+        text = {
+            LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 300.dp)) {
+                items(planes) { plan ->
+                    ListItem(
+                        headlineContent = { Text(plan.nombre) },
+                        supportingContent = { Text("${plan.items.size} alimentos - ${plan.tipo}") },
+                        modifier = Modifier.clickable { onPlanSelected(plan) }
+                    )
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
+    )
 }
 
 @Composable
@@ -180,19 +244,17 @@ fun ModalBuscadorAlimentos(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Buscar Alimento para el Plan") },
+        title = { Text("Buscar Alimento") },
         text = {
             Column(modifier = Modifier.fillMaxWidth().height(400.dp)) {
                 OutlinedTextField(
                     value = estado.query,
                     onValueChange = onQueryChange,
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Buscar...") },
+                    placeholder = { Text("Ej: Pollo, Arroz...") },
                     singleLine = true
                 )
-                
                 Spacer(modifier = Modifier.height(8.dp))
-                
                 if (estado.cargando) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
@@ -208,9 +270,7 @@ fun ModalBuscadorAlimentos(
             }
         },
         confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cerrar") }
-        }
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cerrar") } }
     )
 }
 
@@ -219,15 +279,9 @@ fun ResumenMacrosPlan(items: List<ItemPlan>) {
     val kcal = items.sumOf { it.alimento.calcularKcal(it.cantidadGramos) }
     val prot = items.sumOf { it.alimento.calcularProteinas(it.cantidadGramos) }
     
-    Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("Total Plan:", fontWeight = FontWeight.Bold)
+    Surface(color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Total Selección:", fontWeight = FontWeight.Bold)
             Text("${kcal.toInt()} kcal | ${prot.toInt()}g Proteína", fontWeight = FontWeight.Bold)
         }
     }

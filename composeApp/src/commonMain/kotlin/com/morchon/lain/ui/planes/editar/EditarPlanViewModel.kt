@@ -57,6 +57,11 @@ class EditarPlanViewModel(
                     isLoading = false
                 ) }
             }
+            
+            // Cargar otros planes para usar como plantilla
+            planRepository.obtenerPlanesPorUsuario(usuarioId).collect { planes ->
+                _state.update { it.copy(listaPlanesDisponibles = planes.filter { p -> p.id != planId }) }
+            }
         }
     }
 
@@ -65,7 +70,17 @@ class EditarPlanViewModel(
     }
 
     fun onTipoChanged(nuevoTipo: String) {
-        _state.update { it.copy(plan = it.plan.copy(tipo = nuevoTipo)) }
+        _state.update { 
+            val nuevoIndice = if (nuevoTipo == "DIA_UNICO") 0 else _state.value.indiceDiaSeleccionado
+            it.copy(
+                plan = it.plan.copy(tipo = nuevoTipo),
+                indiceDiaSeleccionado = if (nuevoTipo == "DIA_UNICO") 0 else it.indiceDiaSeleccionado
+            ) 
+        }
+    }
+
+    fun onDiaSeleccionado(indice: Int) {
+        _state.update { it.copy(indiceDiaSeleccionado = indice) }
     }
 
     fun agregarAlimento(alimento: Alimento, cantidad: Double, momento: MomentoComida) {
@@ -73,13 +88,26 @@ class EditarPlanViewModel(
             alimento = alimento,
             cantidadGramos = cantidad,
             momentoComida = momento,
-            indiceDia = 0 // Por ahora simplificado a día único
+            indiceDia = _state.value.indiceDiaSeleccionado
         )
         _state.update { 
             it.copy(
                 plan = it.plan.copy(items = it.plan.items + nuevoItem),
                 showBuscadorAlimentos = false
             ) 
+        }
+    }
+
+    fun aplicarPlantillaADia(plantilla: Plan) {
+        val indiceDestino = _state.value.indiceDiaSeleccionado
+        // Mapeamos los items de la plantilla al día seleccionado actualmente
+        val nuevosItems = plantilla.items.map { it.copy(id = 0, indiceDia = indiceDestino) }
+        
+        _state.update { 
+            it.copy(
+                plan = it.plan.copy(items = it.plan.items + nuevosItems),
+                showDialogoSeleccionarPlantilla = false
+            )
         }
     }
 
@@ -91,6 +119,10 @@ class EditarPlanViewModel(
 
     fun toggleBuscador(show: Boolean) {
         _state.update { it.copy(showBuscadorAlimentos = show) }
+    }
+
+    fun toggleDialogoPlantilla(show: Boolean) {
+        _state.update { it.copy(showDialogoSeleccionarPlantilla = show) }
     }
 
     fun guardarPlan() {
