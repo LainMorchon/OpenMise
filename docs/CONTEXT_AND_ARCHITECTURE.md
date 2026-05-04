@@ -27,7 +27,10 @@ Clean Architecture organizada en `composeApp/src/commonMain/kotlin/com/morchon/l
 - **`model/`**: 
     - `Plan`: Soporta tipos `DIA_UNICO` y `SEMANAL`.
     - `ItemPlan`: Contiene `indiceDia` (0 para diario, 1-7 para semanal).
-- **`usecase/`**: Lógica de orquestación como `AplicarPlanUseCase` (con filtrado inteligente por día de la semana) y `GuardarPlanUseCase`.
+    - `RegistroDiario`: Representa un consumo realizado, almacenando valores nutricionales históricos.
+- **`usecase/`**: 
+    - **Registro**: `ObtenerRegistrosDiariosUseCase`, `EliminarRegistroUseCase`, `RegistrarConsumoUseCase`, `ObtenerProgresoDiarioUseCase`.
+    - **Planes**: `AplicarPlanUseCase` (con filtrado inteligente por día de la semana) y `GuardarPlanUseCase`.
 
 ### 🔵 Capa de Datos (`data/`)
 - Implementación de repositorios y DAOs de Room.
@@ -36,6 +39,8 @@ Clean Architecture organizada en `composeApp/src/commonMain/kotlin/com/morchon/l
 ### 🟡 Capa de UI/Presentación (`ui/`)
 - **Gestión de Navegación**: Se utiliza `SavedStateHandle` inyectado por Koin (`handle.get()`) para recuperar argumentos de ruta de forma segura en KMP.
 - **Features**:
+    - `ui/home/`: Dashboard principal con progreso de calorías y macros del día actual.
+    - `ui/diario/`: Historial detallado con navegación por fechas, resumen de macros y gestión de registros (agrupados por momentos del día).
     - `ui/planes/`: Listado y Editor avanzado con soporte semanal y sistema de copia de plantillas.
     - `ui/consumo/`: Integración de planes para registro rápido con previsualización y selección granular.
 

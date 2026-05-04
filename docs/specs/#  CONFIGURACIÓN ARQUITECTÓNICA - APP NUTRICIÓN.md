@@ -18,6 +18,8 @@
 ### 🟡 ui/ (Presentación - Compose Multiplatform)
 * **`navigation/`**: Gestión de rutas. En ViewModels, se utiliza `SavedStateHandle` para recuperar IDs de navegación en KMP.
 * **Features**:
+    * `ui/home/`: Dashboard principal con resumen de progreso diario (kcal y macros).
+    * `ui/diario/`: Historial de consumo con navegación por fechas, agrupación por momentos del día y resumen de macronutrientes.
     * `ui/planes/editar/`: Implementa lógica de filtrado por día, búsqueda de alimentos y sistema de plantillas (copia profunda de items entre planes).
 
 ### 🔴 di/ (Inyección de Dependencias)

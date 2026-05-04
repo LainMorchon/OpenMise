@@ -10,6 +10,7 @@ import com.morchon.lain.ui.recetas.detalle.DetalleRecetaViewModel
 import com.morchon.lain.ui.recetas.listado.ListadoRecetasViewModel
 import com.morchon.lain.ui.planes.listado.ListadoPlanesViewModel
 import com.morchon.lain.ui.planes.editar.EditarPlanViewModel
+import com.morchon.lain.ui.diario.DiarioViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -37,4 +38,7 @@ val uiModule = module {
     viewModel { handle -> 
         EditarPlanViewModel(handle.get(), get(), get(), get())
     }
+
+    // --- DIARIO ---
+    viewModel { DiarioViewModel(get(), get()) }
 }

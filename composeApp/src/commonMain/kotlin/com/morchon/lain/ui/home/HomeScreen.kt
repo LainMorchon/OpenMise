@@ -26,6 +26,7 @@ fun HomeScreen(
     alNavegarAPerfil: () -> Unit,
     alNavegarASeleccionarAlimento: () -> Unit,
     alNavegarAPlanes: () -> Unit,
+    alNavegarAHistorial: () -> Unit,
     alCerrarSesion: () -> Unit
 ) {
     val estado by viewModel.estado.collectAsState()
@@ -50,6 +51,15 @@ fun HomeScreen(
                             expanded = mostrarMenu,
                             onDismissRequest = { mostrarMenu = false }
                         ) {
+                            DropdownMenuItem(
+                                text = { Text("Historial de Consumo") },
+                                onClick = {
+                                    mostrarMenu = false
+                                    alNavegarAHistorial()
+                                },
+                                leadingIcon = { Icon(Icons.Default.List, contentDescription = null) }
+                            )
+                            HorizontalDivider()
                             DropdownMenuItem(
                                 text = { Text("Mis Planes") },
                                 onClick = {
@@ -102,7 +112,8 @@ fun HomeScreen(
                 alPulsarHome = {},
                 alPulsarRecetario = alNavegarRecetario,
                 alPulsarCrear = { alNavegarCrearReceta() },
-                alPulsarPlanes = alNavegarAPlanes
+                alPulsarPlanes = alNavegarAPlanes,
+                alPulsarDiario = alNavegarAHistorial
             )
         }
     ) { paddingValues ->
@@ -224,7 +235,8 @@ fun BarraNavegacionInferior(
     alPulsarHome: () -> Unit,
     alPulsarRecetario: () -> Unit,
     alPulsarCrear: () -> Unit,
-    alPulsarPlanes: () -> Unit
+    alPulsarPlanes: () -> Unit,
+    alPulsarDiario: () -> Unit
 ) {
     NavigationBar {
         NavigationBarItem(
@@ -234,10 +246,10 @@ fun BarraNavegacionInferior(
             label = { Text("Inicio") }
         )
         NavigationBarItem(
-            selected = rutaActual == "recetario",
-            onClick = alPulsarRecetario,
-            icon = { Icon(Icons.Default.List, contentDescription = "Recetario") },
-            label = { Text("Recetario") }
+            selected = rutaActual == "diario",
+            onClick = alPulsarDiario,
+            icon = { Icon(Icons.Default.Refresh, contentDescription = "Diario") },
+            label = { Text("Diario") }
         )
         NavigationBarItem(
             selected = rutaActual == "planes",
@@ -246,10 +258,10 @@ fun BarraNavegacionInferior(
             label = { Text("Planes") }
         )
         NavigationBarItem(
-            selected = rutaActual == "crear_receta",
-            onClick = alPulsarCrear,
-            icon = { Icon(Icons.Default.AddCircle, contentDescription = "Crear") },
-            label = { Text("Crear") }
+            selected = rutaActual == "recetario",
+            onClick = alPulsarRecetario,
+            icon = { Icon(Icons.Default.List, contentDescription = "Recetario") },
+            label = { Text("Recetas") }
         )
     }
 }
@@ -264,6 +276,7 @@ fun HomePreview() {
             alNavegarAPerfil = {},
             alNavegarASeleccionarAlimento = {},
             alNavegarAPlanes = {},
+            alNavegarAHistorial = {},
             alCerrarSesion = {}
         )
     }

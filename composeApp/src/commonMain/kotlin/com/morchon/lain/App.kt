@@ -1,7 +1,6 @@
 package com.morchon.lain
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,6 +16,7 @@ import com.morchon.lain.ui.registro.RegistroScreen
 import com.morchon.lain.ui.recetas.crear.CrearRecetaScreen
 import com.morchon.lain.ui.recetas.detalle.DetalleRecetaScreen
 import com.morchon.lain.ui.recetas.listado.ListadoRecetasScreen
+import com.morchon.lain.ui.diario.DiarioScreen
 import com.morchon.lain.ui.planes.listado.ListadoPlanesScreen
 import com.morchon.lain.ui.planes.editar.EditarPlanScreen
 import com.morchon.lain.ui.login.LoginViewModel
@@ -69,11 +69,19 @@ fun App() {
                         alNavegarAPerfil = { navController.navigate(Rutas.Perfil.ruta) },
                         alNavegarASeleccionarAlimento = { navController.navigate(Rutas.SeleccionarAlimento.ruta) },
                         alNavegarAPlanes = { navController.navigate(Rutas.Planes.ruta) },
+                        alNavegarAHistorial = { navController.navigate(Rutas.Diario.ruta) },
                         alCerrarSesion = {
                             navController.navigate(Rutas.Login.ruta) {
                                 popUpTo(Rutas.Home.ruta) { inclusive = true }
                             }
                         }
+                    )
+                }
+
+                // PANTALLA DIARIO/HISTORIAL
+                composable(Rutas.Diario.ruta) {
+                    DiarioScreen(
+                        onNavigateBack = { navController.popBackStack() }
                     )
                 }
 

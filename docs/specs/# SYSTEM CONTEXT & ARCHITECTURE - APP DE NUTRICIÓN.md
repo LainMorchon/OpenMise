@@ -68,3 +68,14 @@ Controlado mediante Use Cases interactuando con las entidades y repositorios.
 * `[Borrador]`: Fase de composición (edición de ingredientes). Inaccesible para asociaciones.
 * `[Disponible]`: Guardada en catálogo privado. Lista para usarse en diarios y planes.
 * `[Eliminada]`: Purga total (destruye ingredientes por composición).
+
+### 4.3. Entidad: `Registro_Diario`
+* `[Registrado]`: Consumo guardado con snapshot de macros.
+* `[Eliminado]`: Borrado físico del registro (vuelve a liberar el presupuesto calórico del día).
+
+---
+
+## 5. CAPA DE PRESENTACIÓN (UI)
+* **Dashboard (`Home`)**: Resumen visual rápido del día con progreso de calorías y macros.
+* **Diario (`Historial`)**: Gestión granular de consumos pasados y presentes, con navegación temporal y resumen de nutrientes.
+* **Planes**: Sistema de gestión de plantillas y aplicación por lotes.

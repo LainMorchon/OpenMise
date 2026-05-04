@@ -32,18 +32,19 @@ El proyecto sigue una arquitectura **Clean Architecture** estricta, asegurando q
 2.  **Gestión de Usuario:** Registro, Login (persistencia de sesión), cierre de sesión y **configuración de objetivos nutricionales personalizados**.
 3.  **Búsqueda e Inteligencia Nutricional:** Búsqueda en API externa y guardado automático en catálogo local.
 4.  **Recetario Avanzado:** Cálculo automático de macros por 100g y soporte multimedia.
-5.  **Registro Diario con Patrón Snapshot:**
-    *   Inmutabilidad del historial: el consumo guarda una copia física de los macros en el momento de la ingesta.
-    *   Cálculo reactivo del progreso diario (Kcal y Macros) frente a objetivos.
-    *   **Buscador Polimórfico**: Nueva pantalla para buscar y añadir tanto alimentos simples como recetas complejas en un mismo flujo.
+5.  **Registro Diario y Diario de Consumo (Historial):**
+    *   **Patrón Snapshot**: Inmutabilidad del historial; el consumo guarda una copia física de los macros en el momento de la ingesta.
+    *   **Diario Detallado**: Visualización por fechas, agrupación por momentos del día (Desayuno, Almuerzo, etc.) y resumen de macronutrientes totales del día.
+    *   **Gestión de Registros**: Capacidad para eliminar consumos y actualizar el progreso en tiempo real.
+6.  **Gestión de Planes Nutricionales:** Sistema de plantillas (Día Único/Semanal) para planificación avanzada y registro rápido.
 
 ---
 
 ## 4. Implementaciones Faltantes y Próximos Pasos
 
 ### 🔴 Prioridad Alta
-- **Módulo de Planes**: Implementar `Plan` e `ItemPlan` (Plantillas de alimentación). Actualmente la UI tiene un placeholder preparado para esta funcionalidad.
+- **Paginación:** Integrar `Paging3` en la búsqueda de alimentos para optimizar el rendimiento con grandes volúmenes de datos.
 
 ### 📅 Funcionalidades Pendientes
-- **Paginación:** Integrar `Paging3` en la búsqueda de alimentos.
-- **Gráficas de Historial:** Visualización de la evolución del peso y consumos semanales.
+- **Gráficas de Historial:** Visualización de la evolución del peso y consumos semanales/mensuales.
+- **Recordatorios/Notificaciones:** Alertas para registrar comidas o beber agua.
