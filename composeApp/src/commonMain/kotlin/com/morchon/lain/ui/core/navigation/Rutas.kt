@@ -15,4 +15,8 @@ sealed class Rutas(val ruta: String) {
     data object Registro : Rutas("registro")
     data object Perfil : Rutas("perfil")
     data object SeleccionarAlimento : Rutas("seleccionar_alimento")
+    data object Planes : Rutas("planes")
+    data object EditarPlan : Rutas("editar_plan/{planId}?") {
+        fun crearRuta(planId: Long? = null) = if (planId != null) "editar_plan/$planId" else "editar_plan/null"
+    }
 }

@@ -7,6 +7,7 @@ import com.morchon.lain.domain.repository.RegistroDiarioRepository
 import com.morchon.lain.domain.repository.UsuarioRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
@@ -22,20 +23,21 @@ class RegistrarConsumoUseCase(
     suspend operator fun invoke(
         alimento: Alimento,
         cantidadGramos: Double,
-        momentoComida: MomentoComida
+        momentoComida: MomentoComida,
+        fecha: LocalDate? = null
     ) {
         // 1. Persistimos el alimento en el catálogo local (caché de recientes/frecuentes)
         alimentoRepository.guardarAlimentoLocal(alimento)
 
         // 2. Registramos la ingesta
         val usuario = usuarioRepository.obtenerUsuarioActivo().first() ?: return
-        val hoy = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val fechaRegistro = fecha ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
         val registro = RegistroDiario(
             usuarioId = usuario.id,
             alimentoId = alimento.id,
             nombreAlimento = alimento.nombre,
-            fecha = hoy,
+            fecha = fechaRegistro,
             cantidadGramos = cantidadGramos,
             momentoComida = momentoComida,
             // SNAPSHOT: Calculamos y guardamos los macros en este preciso instante

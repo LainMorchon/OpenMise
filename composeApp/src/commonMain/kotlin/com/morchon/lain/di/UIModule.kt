@@ -8,6 +8,7 @@ import com.morchon.lain.ui.perfil.PerfilViewModel
 import com.morchon.lain.ui.recetas.crear.CrearRecetaViewModel
 import com.morchon.lain.ui.recetas.detalle.DetalleRecetaViewModel
 import com.morchon.lain.ui.recetas.listado.ListadoRecetasViewModel
+import com.morchon.lain.ui.planes.listado.ListadoPlanesViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -41,4 +42,7 @@ val uiModule = module {
     viewModel { handle -> 
         DetalleRecetaViewModel(handle.get(), get(), get())
     }
+
+    // --- PLANES ---
+    viewModel { ListadoPlanesViewModel(get(), get(), get()) }
 }

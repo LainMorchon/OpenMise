@@ -1,6 +1,7 @@
 package com.morchon.lain
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,6 +17,7 @@ import com.morchon.lain.ui.registro.RegistroScreen
 import com.morchon.lain.ui.recetas.crear.CrearRecetaScreen
 import com.morchon.lain.ui.recetas.detalle.DetalleRecetaScreen
 import com.morchon.lain.ui.recetas.listado.ListadoRecetasScreen
+import com.morchon.lain.ui.planes.listado.ListadoPlanesScreen
 import com.morchon.lain.ui.login.LoginViewModel
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
@@ -124,6 +126,31 @@ fun App() {
                             navController.navigate(Rutas.CrearReceta.crearRuta(id))
                         }
                     )
+                }
+
+                // PANTALLA 6: LISTADO DE PLANES
+                composable(Rutas.Planes.ruta) {
+                    ListadoPlanesScreen(
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToCrear = { navController.navigate(Rutas.EditarPlan.crearRuta()) },
+                        onNavigateToEditar = { id ->
+                            navController.navigate(Rutas.EditarPlan.crearRuta(id))
+                        }
+                    )
+                }
+
+                // PANTALLA 7: CREAR/EDITAR PLAN
+                composable(
+                    route = Rutas.EditarPlan.ruta,
+                    arguments = listOf(
+                        androidx.navigation.navArgument("planId") {
+                            type = androidx.navigation.NavType.StringType
+                            nullable = true
+                            defaultValue = "null"
+                        }
+                    )
+                ) {
+                    Text("Próximamente: Pantalla de edición de plan")
                 }
             }
         }

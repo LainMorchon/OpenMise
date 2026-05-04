@@ -15,6 +15,10 @@ import com.morchon.lain.domain.usecase.usuario.LoginUseCase
 import com.morchon.lain.domain.usecase.usuario.ObtenerUsuarioActivoUseCase
 import com.morchon.lain.domain.usecase.usuario.ObtenerUsuariosUseCase
 import com.morchon.lain.domain.usecase.usuario.RegistrarUsuarioUseCase
+import com.morchon.lain.domain.usecase.planes.ObtenerPlanesUseCase
+import com.morchon.lain.domain.usecase.planes.GuardarPlanUseCase
+import com.morchon.lain.domain.usecase.planes.AplicarPlanUseCase
+import com.morchon.lain.domain.usecase.planes.EliminarPlanUseCase
 import org.koin.dsl.module
 
 val domainModule = module {
@@ -40,4 +44,10 @@ val domainModule = module {
     factory { RegistrarConsumoUseCase(get(), get(), get()) }
     factory { ObtenerProgresoDiarioUseCase(get(), get()) }
     factory { BuscarConsumiblesUseCase(get(), get()) }
+
+    // --- PLANES ---
+    factory { ObtenerPlanesUseCase(get(), get()) }
+    factory { GuardarPlanUseCase(get(), get()) }
+    factory { AplicarPlanUseCase(get()) }
+    factory { EliminarPlanUseCase(get()) }
 }

@@ -9,7 +9,9 @@ import com.morchon.lain.domain.repository.RecetaRepository
 import com.morchon.lain.data.remote.FatSecretApiService
 import com.morchon.lain.data.repository.AlimentoRepositoryImpl
 import com.morchon.lain.data.repository.RegistroDiarioRepositoryImpl
+import com.morchon.lain.data.repository.PlanRepositoryImpl
 import com.morchon.lain.domain.repository.AlimentoRepository
+import com.morchon.lain.domain.repository.PlanRepository
 import com.morchon.lain.domain.repository.RegistroDiarioRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -66,4 +68,8 @@ val dataModule = module {
     // --- REGISTRO DIARIO ---
     single { get<AppDatabase>().registroDiarioDao() }
     single<RegistroDiarioRepository> { RegistroDiarioRepositoryImpl(get()) }
+
+    // --- PLANES ---
+    single { get<AppDatabase>().planDao() }
+    single<PlanRepository> { PlanRepositoryImpl(get()) }
 }
