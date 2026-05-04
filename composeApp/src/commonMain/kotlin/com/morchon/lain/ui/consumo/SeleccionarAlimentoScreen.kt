@@ -7,6 +7,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,8 +19,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.morchon.lain.domain.model.Alimento
+import com.morchon.lain.domain.model.ItemPlan
 import com.morchon.lain.domain.model.MomentoComida
+import com.morchon.lain.domain.model.Plan
 import com.morchon.lain.domain.model.Receta
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,7 +86,7 @@ fun SeleccionarAlimentoScreen(
                     val filtrados = if (tabSeleccionada == 0) {
                         estado.listaResultados.filter { it !is Receta }
                     } else {
-                        estado.listaResultados.filter { it is Receta }
+                        estado.listaResultados.filterIsInstance<Receta>()
                     }
 
                     if (estado.cargando) {
@@ -101,14 +110,31 @@ fun SeleccionarAlimentoScreen(
                     }
                 }
                 2 -> {
-                    // Placeholder para Planes
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Módulo de Planes", style = MaterialTheme.typography.titleMedium)
-                            Text("(Próximamente)", style = MaterialTheme.typography.bodySmall)
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(onClick = { /* Implementación futura */ }, enabled = false) {
-                                Text("Aplicar Plan Completo")
+                    // Listado de Planes
+                    if (estado.planes.isEmpty()) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text("No tienes planes creados")
+                        }
+                    } else {
+                        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(estado.planes) { plan ->
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().clickable { viewModel.seleccionarPlan(plan) },
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                ) {
+                                    ListItem(
+                                        headlineContent = { Text(plan.nombre, fontWeight = FontWeight.Bold) },
+                                        supportingContent = { Text("${plan.tipo} - ${plan.items.size} alimentos") },
+                                        trailingContent = {
+                                            Icon(
+                                                imageVector = Icons.Default.Info,
+                                                contentDescription = "Ver detalles",
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        },
+                                        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+                                    )
+                                }
                             }
                         }
                     }
@@ -117,7 +143,7 @@ fun SeleccionarAlimentoScreen(
         }
     }
 
-    // Diálogo de configuración
+    // Diálogo de configuración de alimento suelto
     estado.alimentoSeleccionado?.let { alimento ->
         DialogoConfigurarConsumo(
             alimento = alimento,
@@ -129,6 +155,75 @@ fun SeleccionarAlimentoScreen(
             onDismiss = { viewModel.seleccionarAlimento(null) }
         )
     }
+
+    // NUEVO: Diálogo de detalle de plan
+    estado.planSeleccionado?.let { plan ->
+        DialogoDetallePlan(
+            plan = plan,
+            onRegistrarItem = viewModel::registrarItemDePlan,
+            onAplicarTodo = {
+                viewModel.confirmarAplicarPlanCompleto()
+                viewModel.seleccionarPlan(null)
+            },
+            onDismiss = { viewModel.seleccionarPlan(null) }
+        )
+    }
+}
+
+@Composable
+fun DialogoDetallePlan(
+    plan: Plan,
+    onRegistrarItem: (ItemPlan) -> Unit,
+    onAplicarTodo: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val hoy = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    val itemsAMostrar = if (plan.tipo == "SEMANAL") {
+        plan.items.filter { it.indiceDia == hoy.dayOfWeek.isoDayNumber }
+    } else {
+        plan.items
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(plan.nombre) },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)) {
+                Text(
+                    text = if (plan.tipo == "SEMANAL") "Sugerencias para hoy (${hoy.dayOfWeek})" else "Contenido del plan",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                if (itemsAMostrar.isEmpty()) {
+                    Text("No hay alimentos definidos para hoy en este plan.", style = MaterialTheme.typography.bodyMedium)
+                } else {
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        items(itemsAMostrar) { item ->
+                            ListItem(
+                                headlineContent = { Text(item.alimento.nombre, fontWeight = FontWeight.SemiBold) },
+                                supportingContent = { Text("${item.cantidadGramos.toInt()}g - ${item.momentoComida.name.lowercase()}") },
+                                trailingContent = {
+                                    IconButton(onClick = { onRegistrarItem(item) }) {
+                                        Icon(Icons.Default.Add, contentDescription = "Añadir este alimento", tint = MaterialTheme.colorScheme.primary)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = onAplicarTodo, enabled = itemsAMostrar.isNotEmpty()) {
+                Text("Añadir todo el día")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cerrar") }
+        }
+    )
 }
 
 @Composable

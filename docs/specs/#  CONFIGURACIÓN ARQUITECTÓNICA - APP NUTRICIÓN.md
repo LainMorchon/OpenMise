@@ -7,43 +7,32 @@
 ## 1. ESTRUCTURA DE DIRECTORIOS (commonMain/kotlin/...)
 
 ### 🟢 domain/ (Reglas de Negocio)
-* **`model/`**: Entidades puras de la App de Nutrición.
-    * `Usuario.kt`, `Alimento.kt`, `Receta.kt`, `Plan.kt`, `Ingrediente.kt`, `ItemPlan.kt`, `RegistroDiario.kt`.
-* **`Repository.kt`**: Interfaces de los repositorios (contratos).
-* **`usecase/`**: Lógica orquestada (ej: `GetDailyMacrosUseCase.kt`, `ApplyPlanUseCase.kt`).
+* **`model/`**: Entidades puras.
+    * `Plan.kt`: Define `PlanType` (DIA_UNICO, SEMANAL).
+    * `ItemPlan.kt`: Entidad atómica de un plan con `indiceDia`.
 
 ### 🔵 data/ (Infraestructura)
 * **`database/`**: Implementación de Room KMP.
-    * `dao/`: Interfaces `AlimentoDAO`, `PlanDAO`, etc.
-    * `entity/`: Tablas de BD (ej: `AlimentoEntity.kt`).
-    * `Database.kt`: Clase abstracta de la base de datos Room.
-* **`remote/`**: Consumo de API con Ktor.
-    * `paging/`: `FoodPagingSource.kt` para búsquedas masivas.
-    * `response/`: DTOs de red (ej: `FoodResponse.kt`).
-    * `ApiService.kt`: Definición de los endpoints.
-* **`RepositoryImpl.kt`**: Implementación real de los repositorios que coordina `database` y `remote`.
+* **`RepositoryImpl.kt`**: Coordinación entre local y remoto.
 
 ### 🟡 ui/ (Presentación - Compose Multiplatform)
-* **`core/`**: Componentes reutilizables, extensiones, temas y navegación.
-    * `components/`: `FoodCard.kt`, `MacroChip.kt`, `PagingLoadingState.kt`.
-    * `navigation/`: `NavigationWrapper.kt`, `Routes.kt`.
-    * `util/`: `CameraManager.kt` (Gestión de cámara/galería KMP), `ImageManager.kt`.
-* **`home/`**, **`detail/`**, **`plan/`** (Features):
-    * `XXXScreen.kt`: El código UI de la pantalla.
-    * `XXXViewModel.kt`: Gestión del estado de la interfaz. **Prohibido incluir lógica de negocio aquí.**
-    * `XXXState.kt`: Clase que define el estado (ej: `data class HomeState(val foods: List<Food>, val isLoading: Boolean)`).
+* **`navigation/`**: Gestión de rutas. En ViewModels, se utiliza `SavedStateHandle` para recuperar IDs de navegación en KMP.
+* **Features**:
+    * `ui/planes/editar/`: Implementa lógica de filtrado por día, búsqueda de alimentos y sistema de plantillas (copia profunda de items entre planes).
 
 ### 🔴 di/ (Inyección de Dependencias)
-* `DataModule.kt`, `DomainModule.kt`, `UIModule.kt`, `DIConfigurator.kt`.
+* **`UIModule.kt`**: Configuración de ViewModels. Uso obligatorio de `handle.get()` para inyectar `SavedStateHandle` en ViewModels parametrizados.
 
 ---
 
 ## 2. LÓGICA DE DATOS Y ESTADOS
 
-1. **Separación de Responsabilidades (ESTRICTO):** 
-    * Los **ViewModels** solo gestionan el estado de la UI y llaman a UseCases. No deben instanciar ni llamar directamente a utilidades de infraestructura (como `ImageManager` o `CameraManager`) si el resultado de estas operaciones debe ser procesado por la lógica de negocio.
-    * Los **Use Cases** orquestan tanto la lógica pura como el uso de utilidades necesarias para completar una acción de negocio (ej: procesar una imagen antes de guardarla).
-    * Los **Repositorios** solo orquestan el origen de los datos (Local vs Remote).
-2. **Herencia & Polimorfismo:** `Receta` hereda de `Alimento`. Esto permite que cualquier pantalla que acepte un alimento pueda mostrar una receta sin cambiar el código.
-2. **Patrón Snapshot:** El `RegistroDiario` guarda los valores nutricionales actuales en el momento del consumo (`historico_kcal`), evitando que el historial cambie si el alimento original se edita en la API o base de datos.
-3. **Manejo de Estados:** Cada ViewModel expone un `StateFlow<UIState>` que la pantalla observa para reaccionar a cambios.
+1. **Separación de Responsabilidades:** 
+    * ViewModels: Gestión de UI State y flujo de navegación.
+    * Use Cases: Lógica de negocio (ej. copiar alimentos de una plantilla a un plan).
+2. **Sistema de Planes:**
+    * Un Plan Semanal tiene 7 estados internos (días 1 a 7).
+    * El `indiceDia` 0 se reserva para planes de un único día.
+    * Las plantillas permiten al usuario importar la configuración de un día de un plan "A" al día actual del plan "B".
+3. **Patrón Snapshot:** El `RegistroDiario` guarda los valores nutricionales actuales en el momento del consumo, garantizando la inalterabilidad histórica.
+4. **Manejo de Estados:** Uso de `StateFlow` y clases `State` dedicadas para cada pantalla.

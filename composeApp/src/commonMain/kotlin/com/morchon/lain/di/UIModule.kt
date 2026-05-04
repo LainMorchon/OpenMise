@@ -19,7 +19,7 @@ val uiModule = module {
     viewModel { LoginViewModel(get(), get()) }
     viewModel { RegistroViewModel(get()) }
     viewModel { HomeViewModel(get(), get(), get()) }
-    viewModel { SeleccionarAlimentoViewModel(get(), get()) }
+    viewModel { SeleccionarAlimentoViewModel(get(), get(), get(), get()) }
     viewModel { PerfilViewModel(get(), get()) }
     
     viewModel { handle -> 
