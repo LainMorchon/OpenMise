@@ -18,6 +18,7 @@ import com.morchon.lain.ui.recetas.crear.CrearRecetaScreen
 import com.morchon.lain.ui.recetas.detalle.DetalleRecetaScreen
 import com.morchon.lain.ui.recetas.listado.ListadoRecetasScreen
 import com.morchon.lain.ui.planes.listado.ListadoPlanesScreen
+import com.morchon.lain.ui.planes.editar.EditarPlanScreen
 import com.morchon.lain.ui.login.LoginViewModel
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
@@ -67,6 +68,7 @@ fun App() {
                         alNavegarCrearReceta = { navController.navigate(Rutas.CrearReceta.crearRuta()) },
                         alNavegarAPerfil = { navController.navigate(Rutas.Perfil.ruta) },
                         alNavegarASeleccionarAlimento = { navController.navigate(Rutas.SeleccionarAlimento.ruta) },
+                        alNavegarAPlanes = { navController.navigate(Rutas.Planes.ruta) },
                         alCerrarSesion = {
                             navController.navigate(Rutas.Login.ruta) {
                                 popUpTo(Rutas.Home.ruta) { inclusive = true }
@@ -150,7 +152,9 @@ fun App() {
                         }
                     )
                 ) {
-                    Text("Próximamente: Pantalla de edición de plan")
+                    EditarPlanScreen(
+                        onNavigateBack = { navController.popBackStack() }
+                    )
                 }
             }
         }

@@ -8,6 +8,6 @@ data class Plan(
     val id: Long = 0,
     val usuarioId: String,
     val nombre: String,
-    val descripcion: String? = null,
+    val tipo: String, // "DIA_UNICO", "SEMANAL", etc.
     val items: List<ItemPlan> = emptyList()
 )

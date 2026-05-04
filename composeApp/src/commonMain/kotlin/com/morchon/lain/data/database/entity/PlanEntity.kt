@@ -9,7 +9,7 @@ data class PlanEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val usuario_id: String,
     val nombre: String,
-    val descripcion: String?
+    val tipo: String
 )
 
 fun PlanEntity.aDominio(): Plan {
@@ -17,7 +17,7 @@ fun PlanEntity.aDominio(): Plan {
         id = id,
         usuarioId = usuario_id,
         nombre = nombre,
-        descripcion = descripcion,
+        tipo = tipo,
         items = emptyList() // Se cargan aparte
     )
 }
@@ -27,6 +27,6 @@ fun Plan.aEntity(): PlanEntity {
         id = id,
         usuario_id = usuarioId,
         nombre = nombre,
-        descripcion = descripcion
+        tipo = tipo
     )
 }

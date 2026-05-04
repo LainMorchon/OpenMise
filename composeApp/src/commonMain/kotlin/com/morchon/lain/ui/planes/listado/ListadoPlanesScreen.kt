@@ -119,13 +119,11 @@ fun TarjetaPlan(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                plan.descripcion?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1
-                    )
-                }
+                Text(
+                    text = "Tipo: ${plan.tipo}",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1
+                )
                 Text(
                     text = "${plan.items.size} alimentos",
                     style = MaterialTheme.typography.labelSmall,

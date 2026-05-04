@@ -9,40 +9,32 @@ import com.morchon.lain.ui.recetas.crear.CrearRecetaViewModel
 import com.morchon.lain.ui.recetas.detalle.DetalleRecetaViewModel
 import com.morchon.lain.ui.recetas.listado.ListadoRecetasViewModel
 import com.morchon.lain.ui.planes.listado.ListadoPlanesViewModel
+import com.morchon.lain.ui.planes.editar.EditarPlanViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val uiModule = module {
-    // Definición de ViewModels con sus dependencias (UseCases) actualizadas tras la refactorización
+    // Definición de ViewModels con sus dependencias (UseCases)
     
-    // Login: requiere ObtenerUsuariosUseCase y LoginUseCase
     viewModel { LoginViewModel(get(), get()) }
-    
-    // Registro: requiere RegistrarUsuarioUseCase
     viewModel { RegistroViewModel(get()) }
-    
-    // Home: requiere ObtenerUsuarioActivoUseCase, CerrarSesionUseCase y ObtenerProgresoDiarioUseCase
     viewModel { HomeViewModel(get(), get(), get()) }
-
-    // Seleccionar Alimento: requiere BuscarConsumiblesUseCase y RegistrarConsumoUseCase
     viewModel { SeleccionarAlimentoViewModel(get(), get()) }
-
-    // Perfil: requiere ObtenerUsuarioActivoUseCase y ActualizarObjetivosUseCase
     viewModel { PerfilViewModel(get(), get()) }
     
-    // Crear Receta: requiere SavedStateHandle + 5 UseCases obligatorios
     viewModel { handle -> 
         CrearRecetaViewModel(handle.get(), get(), get(), get(), get(), get()) 
     }
     
-    // Listado Recetas: requiere ObtenerRecetasUseCase
     viewModel { ListadoRecetasViewModel(get()) }
     
-    // Detalle Receta: requiere SavedStateHandle + 2 UseCases obligatorios
     viewModel { handle -> 
         DetalleRecetaViewModel(handle.get(), get(), get())
     }
 
     // --- PLANES ---
     viewModel { ListadoPlanesViewModel(get(), get(), get()) }
+    viewModel { handle -> 
+        EditarPlanViewModel(handle.get(), get(), get(), get())
+    }
 }

@@ -27,7 +27,7 @@ fun PlanCompleto.aDominio(): Plan {
         id = plan.id,
         usuarioId = plan.usuario_id,
         nombre = plan.nombre,
-        descripcion = plan.descripcion,
+        tipo = plan.tipo,
         items = items.map { it.aDominio() }
     )
 }
@@ -41,7 +41,7 @@ fun Plan.aEntity(): PlanEntity {
         id = id,
         usuario_id = usuarioId,
         nombre = nombre,
-        descripcion = descripcion
+        tipo = tipo
     )
 }
 

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "f5801cc6eb1dc3528d2b3d6eb55236f4",
+    "identityHash": "6ae7b2305a5bf11030f99997ec301084",
     "entities": [
       {
         "tableName": "tabla_usuario",
@@ -347,7 +347,7 @@
       },
       {
         "tableName": "Plan",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `usuario_id` TEXT NOT NULL, `nombre` TEXT NOT NULL, `descripcion` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `usuario_id` TEXT NOT NULL, `nombre` TEXT NOT NULL, `tipo` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -368,9 +368,10 @@
             "notNull": true
           },
           {
-            "fieldPath": "descripcion",
-            "columnName": "descripcion",
-            "affinity": "TEXT"
+            "fieldPath": "tipo",
+            "columnName": "tipo",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -475,7 +476,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f5801cc6eb1dc3528d2b3d6eb55236f4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6ae7b2305a5bf11030f99997ec301084')"
     ]
   }
 }
