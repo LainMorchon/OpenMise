@@ -128,17 +128,27 @@ class EditarPlanViewModel(
     fun guardarPlan() {
         viewModelScope.launch {
             if (_state.value.plan.nombre.isBlank()) {
-                _state.update { it.copy(error = "El nombre no puede estar vacío") }
+                _state.update { it.copy(error = "El plan necesita un nombre") }
                 return@launch
             }
 
             try {
-                _state.update { it.copy(isLoading = true) }
+                _state.update { it.copy(isLoading = true, error = null) }
                 guardarPlanUseCase(_state.value.plan)
+                _state.update { it.copy(mensajeExito = "Plan guardado con éxito") }
+                kotlinx.coroutines.delay(2000)
                 _state.update { it.copy(isLoading = false, guardadoExitoso = true) }
             } catch (e: Exception) {
-                _state.update { it.copy(isLoading = false, error = e.message) }
+                _state.update { it.copy(isLoading = false, error = "Error al guardar el plan: ${e.message}") }
             }
         }
+    }
+
+    fun consumirMensaje() {
+        _state.update { it.copy(mensajeExito = null) }
+    }
+
+    fun consumirError() {
+        _state.update { it.copy(error = null) }
     }
 }

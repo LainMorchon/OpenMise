@@ -16,5 +16,6 @@ data class SeleccionarAlimentoState(
     val alimentoSeleccionado: Alimento? = null,
     val cantidadGramos: String = "100",
     val momentoComida: MomentoComida = MomentoComida.DESAYUNO,
-    val guardadoExitoso: Boolean = false
+    val guardadoExitoso: Boolean = false,
+    val mensajeInformativo: String? = null
 )

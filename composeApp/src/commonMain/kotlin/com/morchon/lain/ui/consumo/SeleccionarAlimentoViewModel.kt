@@ -90,7 +90,13 @@ class SeleccionarAlimentoViewModel(
                 cantidadGramos = gramos,
                 momentoComida = _estado.value.momentoComida
             )
-            _estado.update { it.copy(guardadoExitoso = true, alimentoSeleccionado = null) }
+            // Cerramos el diálogo inmediatamente para que se vea el Snackbar en la pantalla
+            _estado.update { it.copy(
+                mensajeInformativo = "${alimento.nombre} añadido al diario",
+                alimentoSeleccionado = null 
+            ) }
+            delay(1500)
+            _estado.update { it.copy(guardadoExitoso = true) }
         }
     }
 
@@ -101,7 +107,8 @@ class SeleccionarAlimentoViewModel(
                 cantidadGramos = item.cantidadGramos,
                 momentoComida = item.momentoComida
             )
-            // No cerramos pantalla para permitir añadir más cosas del plan si se quiere
+            // Notificamos al usuario de forma visible
+            _estado.update { it.copy(mensajeInformativo = "${item.alimento.nombre} añadido desde el plan") }
         }
     }
 
@@ -110,7 +117,16 @@ class SeleccionarAlimentoViewModel(
             _estado.update { it.copy(cargando = true) }
             val hoy = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
             aplicarPlanUseCase(plan, hoy)
-            _estado.update { it.copy(cargando = false, guardadoExitoso = true) }
+            // Cerramos el diálogo de detalle de plan para ver el Snackbar
+            _estado.update { it.copy(
+                mensajeInformativo = "Plan '${plan.nombre}' aplicado al día de hoy",
+                planSeleccionado = null
+            ) }
+            delay(1500)
+            _estado.update { it.copy(
+                cargando = false, 
+                guardadoExitoso = true
+            ) }
         }
     }
 
@@ -121,5 +137,9 @@ class SeleccionarAlimentoViewModel(
 
     fun resetExito() {
         _estado.update { it.copy(guardadoExitoso = false) }
+    }
+
+    fun consumirMensaje() {
+        _estado.update { it.copy(mensajeInformativo = null) }
     }
 }

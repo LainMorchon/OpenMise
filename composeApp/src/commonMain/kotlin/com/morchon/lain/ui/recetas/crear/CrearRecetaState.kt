@@ -28,5 +28,7 @@ data class CrearRecetaState(
 
     // 4. Control de UI
     val estaGuardando: Boolean = false,
-    val guardadoExitoso: Boolean = false // Para saber cuándo navegar hacia atrás
+    val guardadoExitoso: Boolean = false, // Para saber cuándo navegar hacia atrás
+    val error: String? = null,
+    val mensajeExito: String? = null
 )

@@ -30,6 +30,28 @@ fun CrearRecetaScreen(
     viewModel: CrearRecetaViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // --- LÓGICA DE MENSAJES ---
+    LaunchedEffect(state.error) {
+        state.error?.let {
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Long
+            )
+            viewModel.consumirError()
+        }
+    }
+
+    LaunchedEffect(state.mensajeExito) {
+        state.mensajeExito?.let {
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Long
+            )
+            viewModel.consumirMensaje()
+        }
+    }
 
     // --- LÓGICA DE IMAGEN ---
     val cameraManager = rememberCameraManager { bytes ->
@@ -47,7 +69,7 @@ fun CrearRecetaScreen(
         }
     }
 
-    // El diálogo se coloca fuera del Scaffold o dentro, pero NO dentro de LazyColumn directamente
+    // El diálogo se coloca fuera del Scaffold
     if (mostrarDialogo) {
         SeleccionarIngredienteDialog(
             state = state,
@@ -60,200 +82,222 @@ fun CrearRecetaScreen(
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (state.nombre.isBlank()) "Nueva Receta" else state.nombre) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Atrás"
-                        )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(if (state.nombre.isBlank()) "Nueva Receta" else state.nombre) },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Atrás"
+                            )
+                        }
+                    },
+                    actions = {
+                        Button(
+                            onClick = { viewModel.guardarReceta() },
+                            enabled = !state.estaGuardando
+                        ) {
+                            if (state.estaGuardando) {
+                                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                            } else {
+                                Text("Guardar")
+                            }
+                        }
                     }
-                },
-                actions = {
-                    Button(
-                        onClick = { viewModel.guardarReceta() },
-                        enabled = state.nombre.isNotBlank() && !state.estaGuardando
+                )
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // 0. Selector de Imagen
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { mostrarMenuImagen = true },
+                        contentAlignment = Alignment.Center
                     ) {
-                        if (state.estaGuardando) {
-                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        val imagenAMostrar = state.imagenByteArray ?: state.imagenUrl
+                        
+                        if (imagenAMostrar != null) {
+                            AsyncImage(
+                                model = imagenAMostrar,
+                                contentDescription = "Imagen de la receta",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                            
+                            // Botón para borrar imagen
+                            IconButton(
+                                onClick = { viewModel.onImagenSeleccionada(null) },
+                                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
+                                colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Black.copy(alpha = 0.5f))
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.White)
+                            }
                         } else {
-                            Text("Guardar")
+                            Surface(
+                                modifier = Modifier.fillMaxSize(),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.AddAPhoto,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(48.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text("Añadir foto de la receta")
+                                }
+                            }
                         }
                     }
-                }
-            )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // 0. Selector de Imagen
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable { mostrarMenuImagen = true },
-                    contentAlignment = Alignment.Center
-                ) {
-                    val imagenAMostrar = state.imagenByteArray ?: state.imagenUrl
-                    
-                    if (imagenAMostrar != null) {
-                        AsyncImage(
-                            model = imagenAMostrar,
-                            contentDescription = "Imagen de la receta",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                        
-                        // Botón para borrar imagen
-                        IconButton(
-                            onClick = { viewModel.onImagenSeleccionada(null) },
-                            modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
-                            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Black.copy(alpha = 0.5f))
-                        ) {
-                            Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.White)
-                        }
-                    } else {
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Icon(
-                                    Icons.Default.AddAPhoto,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(48.dp)
+
+                    if (mostrarMenuImagen) {
+                        ModalBottomSheet(onDismissRequest = { mostrarMenuImagen = false }) {
+                            Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+                                ListItem(
+                                    headlineContent = { Text("Cámara") },
+                                    leadingContent = { Icon(Icons.Default.CameraAlt, null) },
+                                    modifier = Modifier.clickable {
+                                        cameraManager.capturarFoto()
+                                        mostrarMenuImagen = false
+                                    }
                                 )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Añadir foto de la receta")
+                                ListItem(
+                                    headlineContent = { Text("Galería") },
+                                    leadingContent = { Icon(Icons.Default.PhotoLibrary, null) },
+                                    modifier = Modifier.clickable {
+                                        cameraManager.seleccionarDeGaleria()
+                                        mostrarMenuImagen = false
+                                    }
+                                )
                             }
                         }
                     }
                 }
 
-                if (mostrarMenuImagen) {
-                    ModalBottomSheet(onDismissRequest = { mostrarMenuImagen = false }) {
-                        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
-                            ListItem(
-                                headlineContent = { Text("Cámara") },
-                                leadingContent = { Icon(Icons.Default.CameraAlt, null) },
-                                modifier = Modifier.clickable {
-                                    cameraManager.capturarFoto()
-                                    mostrarMenuImagen = false
-                                }
-                            )
-                            ListItem(
-                                headlineContent = { Text("Galería") },
-                                leadingContent = { Icon(Icons.Default.PhotoLibrary, null) },
-                                modifier = Modifier.clickable {
-                                    cameraManager.seleccionarDeGaleria()
-                                    mostrarMenuImagen = false
-                                }
-                            )
+                // 1. Campo Nombre
+                item {
+                    OutlinedTextField(
+                        value = state.nombre,
+                        onValueChange = { viewModel.onNombreCambiado(it) },
+                        label = { Text("Nombre de la receta") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+
+                // 2. Campo Descripción
+                item {
+                    OutlinedTextField(
+                        value = state.descripcion,
+                        onValueChange = { viewModel.onDescripcionCambiada(it) },
+                        label = { Text("Descripción / Notas") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 2
+                    )
+                }
+
+                // 3. Campo Pasos de Preparación
+                item {
+                    OutlinedTextField(
+                        value = state.pasosPreparacion,
+                        onValueChange = { viewModel.onPasosCambiados(it) },
+                        label = { Text("Pasos de preparación") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 4
+                    )
+                }
+
+                // 4. Campo Enlace URL
+                item {
+                    OutlinedTextField(
+                        value = state.enlaceUrl,
+                        onValueChange = { viewModel.onEnlaceCambiado(it) },
+                        label = { Text("Enlace (YouTube, Blog...)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+
+                // 3. Resumen de Macros
+                item {
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Kcal: ${state.kcalTotales.toInt()}")
+                            Text("P: ${state.proteinasTotales.toInt()}g")
+                            Text("HC: ${state.carbohidratosTotales.toInt()}g")
+                            Text("G: ${state.grasasTotales.toInt()}g")
                         }
                     }
                 }
-            }
 
-            // 1. Campo Nombre
-            item {
-                OutlinedTextField(
-                    value = state.nombre,
-                    onValueChange = { viewModel.onNombreCambiado(it) },
-                    label = { Text("Nombre de la receta") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-            }
-
-            // 2. Campo Descripción
-            item {
-                OutlinedTextField(
-                    value = state.descripcion,
-                    onValueChange = { viewModel.onDescripcionCambiada(it) },
-                    label = { Text("Descripción / Notas") },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 2
-                )
-            }
-
-            // 3. Campo Pasos de Preparación
-            item {
-                OutlinedTextField(
-                    value = state.pasosPreparacion,
-                    onValueChange = { viewModel.onPasosCambiados(it) },
-                    label = { Text("Pasos de preparación") },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 4
-                )
-            }
-
-            // 4. Campo Enlace URL
-            item {
-                OutlinedTextField(
-                    value = state.enlaceUrl,
-                    onValueChange = { viewModel.onEnlaceCambiado(it) },
-                    label = { Text("Enlace (YouTube, Blog...)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-            }
-
-            // 3. Resumen de Macros
-            item {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                // 4. Cabecera de Sección de Ingredientes
+                item {
                     Row(
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Kcal: ${state.kcalTotales.toInt()}")
-                        Text("P: ${state.proteinasTotales.toInt()}g")
-                        Text("HC: ${state.carbohidratosTotales.toInt()}g")
-                        Text("G: ${state.grasasTotales.toInt()}g")
-                    }
-                }
-            }
-
-            // 4. Cabecera de Sección de Ingredientes
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Ingredientes", style = MaterialTheme.typography.titleMedium)
-                    TextButton(onClick = { mostrarDialogo = true }) {
-                        Text("+ Añadir")
-                    }
-                }
-            }
-
-            // 5. Lista dinámica de ingredientes añadidos
-            items(state.ingredientesAñadidos.size) { index ->
-                val ingrediente = state.ingredientesAñadidos[index]
-                ListItem(
-                    headlineContent = { Text(ingrediente.alimento.nombre) },
-                    supportingContent = { Text("${ingrediente.cantidadEnGramos}g - ${ingrediente.kcalTotales.toInt()} kcal") },
-                    trailingContent = {
-                        IconButton(onClick = { viewModel.eliminarIngrediente(ingrediente) }) {
-                            Text("❌")
+                        Text("Ingredientes", style = MaterialTheme.typography.titleMedium)
+                        TextButton(onClick = { mostrarDialogo = true }) {
+                            Text("+ Añadir")
                         }
                     }
+                }
+
+                // 5. Lista dinámica de ingredientes añadidos
+                items(state.ingredientesAñadidos.size) { index ->
+                    val ingrediente = state.ingredientesAñadidos[index]
+                    ListItem(
+                        headlineContent = { Text(ingrediente.alimento.nombre) },
+                        supportingContent = { Text("${ingrediente.cantidadEnGramos}g - ${ingrediente.kcalTotales.toInt()} kcal") },
+                        trailingContent = {
+                            IconButton(onClick = { viewModel.eliminarIngrediente(ingrediente) }) {
+                                Text("❌")
+                            }
+                        }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                }
+            }
+        }
+        
+        // Host de notificaciones centrado
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.Center).padding(32.dp)
+        ) { data ->
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                Text(
+                    text = data.visuals.message,
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
                 )
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
             }
         }
     }

@@ -164,9 +164,17 @@ class CrearRecetaViewModel(
     fun guardarReceta() {
         val estadoActual = _state.value
 
-        if (estadoActual.nombre.isBlank() || estadoActual.ingredientesAñadidos.isEmpty()) return
+        if (estadoActual.nombre.isBlank()) {
+            _state.update { it.copy(error = "La receta necesita un nombre") }
+            return
+        }
+        
+        if (estadoActual.ingredientesAñadidos.isEmpty()) {
+            _state.update { it.copy(error = "La receta debe tener al menos un ingrediente") }
+            return
+        }
 
-        _state.update { it.copy(estaGuardando = true) }
+        _state.update { it.copy(estaGuardando = true, error = null) }
 
         viewModelScope.launch {
             val usuarioActual = obtenerUsuarioActivoUseCase().firstOrNull()
@@ -185,10 +193,20 @@ class CrearRecetaViewModel(
             )
 
             resultado.onSuccess {
-                _state.update { it.copy(estaGuardando = false, guardadoExitoso = true) }
+                _state.update { it.copy(estaGuardando = false, mensajeExito = "Receta guardada con éxito") }
+                delay(2000)
+                _state.update { it.copy(guardadoExitoso = true) }
             }.onFailure {
-                _state.update { it.copy(estaGuardando = false) }
+                _state.update { it.copy(estaGuardando = false, error = "Error al guardar la receta") }
             }
         }
+    }
+
+    fun consumirMensaje() {
+        _state.update { it.copy(mensajeExito = null) }
+    }
+
+    fun consumirError() {
+        _state.update { it.copy(error = null) }
     }
 }

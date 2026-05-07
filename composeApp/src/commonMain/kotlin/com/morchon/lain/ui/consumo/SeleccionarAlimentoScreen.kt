@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,8 +35,19 @@ fun SeleccionarAlimentoScreen(
     viewModel: SeleccionarAlimentoViewModel = koinViewModel()
 ) {
     val estado by viewModel.estado.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
     var tabSeleccionada by remember { mutableStateOf(0) }
     val titulosTabs = listOf("Alimentos", "Recetas", "Planes")
+
+    LaunchedEffect(estado.mensajeInformativo) {
+        estado.mensajeInformativo?.let {
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.consumirMensaje()
+        }
+    }
 
     if (estado.guardadoExitoso) {
         LaunchedEffect(Unit) {
@@ -46,94 +56,94 @@ fun SeleccionarAlimentoScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Añadir Consumo") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Añadir Consumo") },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        }
                     }
-                }
-            )
-        }
-    ) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-            // Buscador
-            OutlinedTextField(
-                value = estado.query,
-                onValueChange = { viewModel.onQueryChange(it) },
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                placeholder = { Text("Buscar alimento o receta...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                singleLine = true
-            )
-
-            // Tabs
-            TabRow(selectedTabIndex = tabSeleccionada) {
-                titulosTabs.forEachIndexed { index, titulo ->
-                    Tab(
-                        selected = tabSeleccionada == index,
-                        onClick = { tabSeleccionada = index },
-                        text = { Text(titulo) }
-                    )
-                }
+                )
             }
+        ) { padding ->
+            Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+                // Buscador
+                OutlinedTextField(
+                    value = estado.query,
+                    onValueChange = { viewModel.onQueryChange(it) },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    placeholder = { Text("Buscar alimento o receta...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    singleLine = true
+                )
 
-            when (tabSeleccionada) {
-                0, 1 -> {
-                    // Listado de Alimentos o Recetas (usamos la misma lógica por polimorfismo)
-                    val filtrados = if (tabSeleccionada == 0) {
-                        estado.listaResultados.filter { it !is Receta }
-                    } else {
-                        estado.listaResultados.filterIsInstance<Receta>()
+                // Tabs
+                TabRow(selectedTabIndex = tabSeleccionada) {
+                    titulosTabs.forEachIndexed { index, titulo ->
+                        Tab(
+                            selected = tabSeleccionada == index,
+                            onClick = { tabSeleccionada = index },
+                            text = { Text(titulo) }
+                        )
                     }
+                }
 
-                    if (estado.cargando) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
+                when (tabSeleccionada) {
+                    0, 1 -> {
+                        val filtrados = if (tabSeleccionada == 0) {
+                            estado.listaResultados.filter { it !is Receta }
+                        } else {
+                            estado.listaResultados.filterIsInstance<Receta>()
                         }
-                    } else if (filtrados.isEmpty() && estado.query.length > 2) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("No se encontraron resultados")
-                        }
-                    } else {
-                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                            items(filtrados) { consumible ->
-                                ConsumibleItem(
-                                    alimento = consumible,
-                                    onClick = { viewModel.seleccionarAlimento(consumible) }
-                                )
-                                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                        if (estado.cargando) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator()
+                            }
+                        } else if (filtrados.isEmpty() && estado.query.length > 2) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("No se encontraron resultados")
+                            }
+                        } else {
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                items(filtrados) { consumible ->
+                                    ConsumibleItem(
+                                        alimento = consumible,
+                                        onClick = { viewModel.seleccionarAlimento(consumible) }
+                                    )
+                                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                                }
                             }
                         }
                     }
-                }
-                2 -> {
-                    // Listado de Planes
-                    if (estado.planes.isEmpty()) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("No tienes planes creados")
-                        }
-                    } else {
-                        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(estado.planes) { plan ->
-                                Card(
-                                    modifier = Modifier.fillMaxWidth().clickable { viewModel.seleccionarPlan(plan) },
-                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                                ) {
-                                    ListItem(
-                                        headlineContent = { Text(plan.nombre, fontWeight = FontWeight.Bold) },
-                                        supportingContent = { Text("${plan.tipo} - ${plan.items.size} alimentos") },
-                                        trailingContent = {
-                                            Icon(
-                                                imageVector = Icons.Default.Info,
-                                                contentDescription = "Ver detalles",
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                        },
-                                        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
-                                    )
+                    2 -> {
+                        if (estado.planes.isEmpty()) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("No tienes planes creados")
+                            }
+                        } else {
+                            LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(estado.planes) { plan ->
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth().clickable { viewModel.seleccionarPlan(plan) },
+                                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                    ) {
+                                        ListItem(
+                                            headlineContent = { Text(plan.nombre, fontWeight = FontWeight.Bold) },
+                                            supportingContent = { Text("${plan.tipo} - ${plan.items.size} alimentos") },
+                                            trailingContent = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Info,
+                                                    contentDescription = "Ver detalles",
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                            },
+                                            colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -141,9 +151,15 @@ fun SeleccionarAlimentoScreen(
                 }
             }
         }
+
+        // Host de notificaciones principal (para la pantalla de fondo)
+        CustomSnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.Center).padding(32.dp)
+        )
     }
 
-    // Diálogo de configuración de alimento suelto
+    // Diálogos con SnackbarHost interno para visibilidad total
     estado.alimentoSeleccionado?.let { alimento ->
         DialogoConfigurarConsumo(
             alimento = alimento,
@@ -152,11 +168,11 @@ fun SeleccionarAlimentoScreen(
             onCantidadChange = viewModel::onCantidadChange,
             onMomentoChange = viewModel::onMomentoChange,
             onConfirmar = viewModel::confirmarConsumo,
-            onDismiss = { viewModel.seleccionarAlimento(null) }
+            onDismiss = { viewModel.seleccionarAlimento(null) },
+            snackbarHostState = snackbarHostState
         )
     }
 
-    // NUEVO: Diálogo de detalle de plan
     estado.planSeleccionado?.let { plan ->
         DialogoDetallePlan(
             plan = plan,
@@ -165,9 +181,26 @@ fun SeleccionarAlimentoScreen(
                 viewModel.confirmarAplicarPlanCompleto()
                 viewModel.seleccionarPlan(null)
             },
-            onDismiss = { viewModel.seleccionarPlan(null) }
+            onDismiss = { viewModel.seleccionarPlan(null) },
+            snackbarHostState = snackbarHostState
         )
     }
+}
+
+@Composable
+fun ConsumibleItem(alimento: Alimento, onClick: () -> Unit) {
+    ListItem(
+        modifier = Modifier.clickable { onClick() },
+        headlineContent = { Text(alimento.nombre, fontWeight = FontWeight.Bold) },
+        supportingContent = {
+            Text("${alimento.kcalPor100g.toInt()} kcal | P: ${alimento.proteinasPor100g.toInt()}g | HC: ${alimento.carbohidratosPor100g.toInt()}g | G: ${alimento.grasasPor100g.toInt()}g")
+        },
+        trailingContent = {
+            if (alimento is Receta) {
+                SuggestionChip(onClick = {}, label = { Text("Receta") })
+            }
+        }
+    )
 }
 
 @Composable
@@ -175,7 +208,8 @@ fun DialogoDetallePlan(
     plan: Plan,
     onRegistrarItem: (ItemPlan) -> Unit,
     onAplicarTodo: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     val hoy = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
     val itemsAMostrar = if (plan.tipo == "SEMANAL") {
@@ -188,31 +222,34 @@ fun DialogoDetallePlan(
         onDismissRequest = onDismiss,
         title = { Text(plan.nombre) },
         text = {
-            Column(modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)) {
-                Text(
-                    text = if (plan.tipo == "SEMANAL") "Sugerencias para hoy (${hoy.dayOfWeek})" else "Contenido del plan",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                if (itemsAMostrar.isEmpty()) {
-                    Text("No hay alimentos definidos para hoy en este plan.", style = MaterialTheme.typography.bodyMedium)
-                } else {
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        items(itemsAMostrar) { item ->
-                            ListItem(
-                                headlineContent = { Text(item.alimento.nombre, fontWeight = FontWeight.SemiBold) },
-                                supportingContent = { Text("${item.cantidadGramos.toInt()}g - ${item.momentoComida.name.lowercase()}") },
-                                trailingContent = {
-                                    IconButton(onClick = { onRegistrarItem(item) }) {
-                                        Icon(Icons.Default.Add, contentDescription = "Añadir este alimento", tint = MaterialTheme.colorScheme.primary)
+            Box(contentAlignment = Alignment.Center) {
+                Column(modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)) {
+                    Text(
+                        text = if (plan.tipo == "SEMANAL") "Sugerencias para hoy (${hoy.dayOfWeek})" else "Contenido del plan",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    if (itemsAMostrar.isEmpty()) {
+                        Text("No hay alimentos para hoy.", style = MaterialTheme.typography.bodyMedium)
+                    } else {
+                        LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            items(itemsAMostrar) { item ->
+                                ListItem(
+                                    headlineContent = { Text(item.alimento.nombre, fontWeight = FontWeight.SemiBold) },
+                                    supportingContent = { Text("${item.cantidadGramos.toInt()}g - ${item.momentoComida.name.lowercase()}") },
+                                    trailingContent = {
+                                        IconButton(onClick = { onRegistrarItem(item) }) {
+                                            Icon(Icons.Default.Add, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.primary)
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
+                CustomSnackbarHost(snackbarHostState)
             }
         },
         confirmButton = {
@@ -227,22 +264,6 @@ fun DialogoDetallePlan(
 }
 
 @Composable
-fun ConsumibleItem(alimento: Alimento, onClick: () -> Unit) {
-    ListItem(
-        modifier = Modifier.clickable { onClick() },
-        headlineContent = { Text(alimento.nombre, fontWeight = FontWeight.Bold) },
-        supportingContent = {
-            Text("${alimento.kcalPor100g.toInt()} kcal | P: ${alimento.proteinasPor100g.toInt()}g | HC: ${alimento.carbohidratosPor100g.toInt()}g | G: ${alimento.grasasPor100g.toInt()}g (por 100g)")
-        },
-        trailingContent = {
-            if (alimento is Receta) {
-                SuggestionChip(onClick = {}, label = { Text("Receta") })
-            }
-        }
-    )
-}
-
-@Composable
 fun DialogoConfigurarConsumo(
     alimento: Alimento,
     cantidad: String,
@@ -250,45 +271,46 @@ fun DialogoConfigurarConsumo(
     onCantidadChange: (String) -> Unit,
     onMomentoChange: (MomentoComida) -> Unit,
     onConfirmar: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Configurar Ingesta") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(alimento.nombre, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-                
-                OutlinedTextField(
-                    value = cantidad,
-                    onValueChange = onCantidadChange,
-                    label = { Text("Cantidad (gramos)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
+            Box(contentAlignment = Alignment.Center) {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(alimento.nombre, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                    
+                    OutlinedTextField(
+                        value = cantidad,
+                        onValueChange = onCantidadChange,
+                        label = { Text("Cantidad (g)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                Text("Momento de la comida:", style = MaterialTheme.typography.labelLarge)
-                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    MomentoComida.entries.forEach { m ->
-                        FilterChip(
-                            selected = momento == m,
-                            onClick = { onMomentoChange(m) },
-                            label = { Text(m.name.lowercase().replaceFirstChar { it.uppercase() }) }
-                        )
+                    FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        MomentoComida.entries.forEach { m ->
+                            FilterChip(
+                                selected = momento == m,
+                                onClick = { onMomentoChange(m) },
+                                label = { Text(m.name.lowercase().replaceFirstChar { it.uppercase() }) }
+                            )
+                        }
+                    }
+
+                    val gramos = cantidad.toDoubleOrNull() ?: 0.0
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text("${alimento.calcularKcal(gramos).toInt()} kcal | ${alimento.calcularProteinas(gramos).toInt()}g Prot", fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
-
-                // Resumen de lo que se va a añadir
-                val gramos = cantidad.toDoubleOrNull() ?: 0.0
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text("Se añadirán:", style = MaterialTheme.typography.labelSmall)
-                        Text("${alimento.calcularKcal(gramos).toInt()} kcal | ${alimento.calcularProteinas(gramos).toInt()}g Prot", fontWeight = FontWeight.Bold)
-                    }
-                }
+                CustomSnackbarHost(snackbarHostState)
             }
         },
         confirmButton = {
@@ -298,4 +320,26 @@ fun DialogoConfigurarConsumo(
             TextButton(onClick = onDismiss) { Text("Cancelar") }
         }
     )
+}
+
+@Composable
+fun CustomSnackbarHost(hostState: SnackbarHostState, modifier: Modifier = Modifier) {
+    SnackbarHost(
+        hostState = hostState,
+        modifier = modifier
+    ) { data ->
+        Surface(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+            color = MaterialTheme.colorScheme.inverseSurface,
+            tonalElevation = 6.dp,
+            shadowElevation = 6.dp
+        ) {
+            Text(
+                text = data.visuals.message,
+                color = MaterialTheme.colorScheme.inverseOnSurface,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
 }
