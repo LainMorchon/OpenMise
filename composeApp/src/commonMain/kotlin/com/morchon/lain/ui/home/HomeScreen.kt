@@ -5,7 +5,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.*
+import openmise.composeapp.generated.resources.Res
+import openmise.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,7 +47,11 @@ fun HomeScreen(
                 actions = {
                     Box {
                         IconButton(onClick = { mostrarMenu = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "Opciones")
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_hamburger_6),
+                                contentDescription = "Opciones",
+                                modifier = Modifier.size(32.dp)
+                            )
                         }
                         DropdownMenu(
                             expanded = mostrarMenu,
@@ -57,7 +63,7 @@ fun HomeScreen(
                                     mostrarMenu = false
                                     alNavegarAHistorial()
                                 },
-                                leadingIcon = { Icon(Icons.Default.List, contentDescription = null) }
+                                leadingIcon = { Icon(painter = painterResource(Res.drawable.ic_history_2), contentDescription = null) }
                             )
                             HorizontalDivider()
                             DropdownMenuItem(
@@ -66,7 +72,7 @@ fun HomeScreen(
                                     mostrarMenu = false
                                     alNavegarAPlanes()
                                 },
-                                leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) }
+                                leadingIcon = { Icon(painter = painterResource(Res.drawable.ic_plan), contentDescription = null) }
                             )
                             HorizontalDivider()
                             DropdownMenuItem(
@@ -75,7 +81,7 @@ fun HomeScreen(
                                     mostrarMenu = false
                                     alNavegarAPerfil()
                                 },
-                                leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null) }
+                                leadingIcon = { Icon(painter = painterResource(Res.drawable.ic_settings), contentDescription = null) }
                             )
                             HorizontalDivider()
                             DropdownMenuItem(
@@ -86,7 +92,7 @@ fun HomeScreen(
                                 },
                                 leadingIcon = { 
                                     Icon(
-                                        Icons.AutoMirrored.Filled.ExitToApp, 
+                                        Icons.AutoMirrored.Filled.ExitToApp,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.error
                                     ) 
@@ -103,7 +109,11 @@ fun HomeScreen(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Añadir Consumo")
+                Icon(
+                    painter = painterResource(Res.drawable.ic_document_add),
+                    contentDescription = "Añadir Consumo",
+                    modifier = Modifier.size(28.dp)
+                )
             }
         },
         bottomBar = {
@@ -242,42 +252,26 @@ fun BarraNavegacionInferior(
         NavigationBarItem(
             selected = rutaActual == "home",
             onClick = alPulsarHome,
-            icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
+            icon = { Icon(painter = painterResource(Res.drawable.ic_home_alt), contentDescription = "Inicio", modifier = Modifier.size(26.dp)) },
             label = { Text("Inicio") }
         )
         NavigationBarItem(
             selected = rutaActual == "diario",
             onClick = alPulsarDiario,
-            icon = { Icon(Icons.Default.Refresh, contentDescription = "Diario") },
+            icon = { Icon(painter = painterResource(Res.drawable.ic_history_2), contentDescription = "Diario", modifier = Modifier.size(26.dp)) },
             label = { Text("Diario") }
         )
         NavigationBarItem(
             selected = rutaActual == "planes",
             onClick = alPulsarPlanes,
-            icon = { Icon(Icons.Default.DateRange, contentDescription = "Planes") },
+            icon = { Icon(painter = painterResource(Res.drawable.ic_plan), contentDescription = "Planes", modifier = Modifier.size(26.dp)) },
             label = { Text("Planes") }
         )
         NavigationBarItem(
             selected = rutaActual == "recetario",
             onClick = alPulsarRecetario,
-            icon = { Icon(Icons.Default.List, contentDescription = "Recetario") },
+            icon = { Icon(painter = painterResource(Res.drawable.ic_chef_hat), contentDescription = "Recetario", modifier = Modifier.size(26.dp)) },
             label = { Text("Recetas") }
-        )
-    }
-}
-
-@Preview
-@Composable
-fun HomePreview() {
-    MaterialTheme {
-        HomeScreen(
-            alNavegarRecetario = {},
-            alNavegarCrearReceta = {},
-            alNavegarAPerfil = {},
-            alNavegarASeleccionarAlimento = {},
-            alNavegarAPlanes = {},
-            alNavegarAHistorial = {},
-            alCerrarSesion = {}
         )
     }
 }

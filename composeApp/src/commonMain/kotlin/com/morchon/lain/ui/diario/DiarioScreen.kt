@@ -3,11 +3,6 @@ package com.morchon.lain.ui.diario
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,6 +11,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.morchon.lain.domain.model.MomentoComida
 import com.morchon.lain.domain.model.RegistroDiario
+import openmise.composeapp.generated.resources.Res
+import openmise.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +30,11 @@ fun DiarioScreen(
                 title = { Text("Historial de Consumo") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_chevron_left_square),
+                            contentDescription = "Atrás",
+                            modifier = Modifier.size(30.dp)
+                        )
                     }
                 }
             )
@@ -109,7 +111,11 @@ fun SelectorFecha(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onAnterior) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Día anterior")
+            Icon(
+                painter = painterResource(Res.drawable.ic_chevron_left_square),
+                contentDescription = "Día anterior",
+                modifier = Modifier.size(32.dp)
+            )
         }
         Text(
             text = fecha,
@@ -117,7 +123,11 @@ fun SelectorFecha(
             fontWeight = FontWeight.Bold
         )
         IconButton(onClick = onSiguiente) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Día siguiente")
+            Icon(
+                painter = painterResource(Res.drawable.ic_chevron_right_square),
+                contentDescription = "Día siguiente",
+                modifier = Modifier.size(32.dp)
+            )
         }
     }
 }
@@ -157,9 +167,10 @@ fun ItemRegistro(
             }
             IconButton(onClick = onEliminar) {
                 Icon(
-                    Icons.Default.Delete,
+                    painter = painterResource(Res.drawable.ic_trash_bin_trash),
                     contentDescription = "Eliminar",
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(26.dp)
                 )
             }
         }

@@ -7,17 +7,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.morchon.lain.domain.model.Plan
+import openmise.composeapp.generated.resources.Res
+import openmise.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,21 +28,38 @@ fun ListadoPlanesScreen(
     onNavigateToEditar: (Long) -> Unit
 ) {
     val estado by viewModel.estado.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(estado.mensajeExito) {
+        estado.mensajeExito?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.mensajeExitoMostrado()
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Mis Planes") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_chevron_left_square),
+                            contentDescription = "Atrás",
+                            modifier = Modifier.size(30.dp)
+                        )
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToCrear) {
-                Icon(Icons.Default.Add, contentDescription = "Crear Plan")
+                Icon(
+                    painter = painterResource(Res.drawable.ic_document_add),
+                    contentDescription = "Crear Plan",
+                    modifier = Modifier.size(28.dp)
+                )
             }
         }
     ) { paddingValues ->
@@ -133,16 +149,18 @@ fun TarjetaPlan(
             Row {
                 IconButton(onClick = onAplicar) {
                     Icon(
-                        Icons.Default.PlayArrow,
+                        painter = painterResource(Res.drawable.ic_document_add),
                         contentDescription = "Aplicar Plan",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(26.dp)
                     )
                 }
                 IconButton(onClick = onEliminar) {
                     Icon(
-                        Icons.Default.Delete,
+                        painter = painterResource(Res.drawable.ic_trash_bin_trash),
                         contentDescription = "Eliminar Plan",
-                        tint = MaterialTheme.colorScheme.error
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(26.dp)
                     )
                 }
             }

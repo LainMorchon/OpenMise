@@ -1,10 +1,6 @@
 package com.morchon.lain.ui.recetas.listado
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.*
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
@@ -18,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.morchon.lain.domain.model.Receta
+import openmise.composeapp.generated.resources.Res
+import openmise.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,8 +36,9 @@ fun ListadoRecetasScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Atrás"
+                            painter = painterResource(Res.drawable.ic_chevron_left_square),
+                            contentDescription = "Atrás",
+                            modifier = Modifier.size(30.dp)
                         )
                     }
                 }
@@ -46,7 +46,11 @@ fun ListadoRecetasScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToCrear) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Crear Receta")
+                Icon(
+                    painter = painterResource(Res.drawable.ic_document_add),
+                    contentDescription = "Crear Receta",
+                    modifier = Modifier.size(28.dp)
+                )
             }
         }
     ) { padding ->
@@ -113,7 +117,7 @@ fun RecetaItem(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Restaurant,
+                            painter = painterResource(Res.drawable.ic_food),
                             contentDescription = null,
                             modifier = Modifier.padding(16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant

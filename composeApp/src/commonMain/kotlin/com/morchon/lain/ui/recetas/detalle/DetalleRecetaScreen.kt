@@ -5,7 +5,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.*
@@ -17,6 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.morchon.lain.domain.model.Receta
+import openmise.composeapp.generated.resources.Res
+import openmise.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,15 +42,27 @@ fun DetalleRecetaScreen(
                 title = { Text("Detalle de Receta") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_chevron_left_square),
+                            contentDescription = "Atrás",
+                            modifier = Modifier.size(30.dp)
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = { state.receta?.id?.let { onNavigateToEdit(it) } }) {
-                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar")
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_chef_hat),
+                            contentDescription = "Editar",
+                            modifier = Modifier.size(26.dp)
+                        )
                     }
                     IconButton(onClick = { viewModel.onBorrarClick() }) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Borrar")
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_trash_bin_trash),
+                            contentDescription = "Borrar",
+                            modifier = Modifier.size(26.dp)
+                        )
                     }
                 }
             )

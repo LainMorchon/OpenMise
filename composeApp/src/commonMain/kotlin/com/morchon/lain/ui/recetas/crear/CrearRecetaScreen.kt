@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +20,9 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.morchon.lain.domain.model.Alimento 
 import com.morchon.lain.ui.core.util.rememberCameraManager
+import openmise.composeapp.generated.resources.Res
+import openmise.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,20 +92,22 @@ fun CrearRecetaScreen(
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Atrás"
+                                painter = painterResource(Res.drawable.ic_chevron_left_square),
+                                contentDescription = "Atrás",
+                                modifier = Modifier.size(30.dp)
                             )
                         }
                     },
                     actions = {
-                        Button(
-                            onClick = { viewModel.guardarReceta() },
-                            enabled = !state.estaGuardando
-                        ) {
-                            if (state.estaGuardando) {
-                                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                            } else {
-                                Text("Guardar")
+                        if (state.estaGuardando) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp).padding(4.dp), strokeWidth = 2.dp)
+                        } else {
+                            IconButton(onClick = { viewModel.guardarReceta() }) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.ic_bookmark),
+                                    contentDescription = "Guardar",
+                                    modifier = Modifier.size(26.dp)
+                                )
                             }
                         }
                     }
@@ -143,7 +147,7 @@ fun CrearRecetaScreen(
                                 modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
                                 colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Black.copy(alpha = 0.5f))
                             ) {
-                                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.White)
+                                Icon(painter = painterResource(Res.drawable.ic_trash_bin_trash), contentDescription = "Eliminar", tint = Color.White)
                             }
                         } else {
                             Surface(
@@ -272,7 +276,11 @@ fun CrearRecetaScreen(
                         supportingContent = { Text("${ingrediente.cantidadEnGramos}g - ${ingrediente.kcalTotales.toInt()} kcal") },
                         trailingContent = {
                             IconButton(onClick = { viewModel.eliminarIngrediente(ingrediente) }) {
-                                Text("❌")
+                                Icon(
+                                    painter = painterResource(Res.drawable.ic_trash_bin_trash),
+                                    contentDescription = "Eliminar",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
                             }
                         }
                     )

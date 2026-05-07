@@ -57,7 +57,11 @@ class ListadoPlanesViewModel(
         viewModelScope.launch {
             val hoy = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
             aplicarPlanUseCase(plan, hoy)
-            // Aquí se podría añadir un mensaje de éxito en el estado
+            _estado.update { it.copy(mensajeExito = "Plan '${plan.nombre}' aplicado correctamente") }
         }
+    }
+
+    fun mensajeExitoMostrado() {
+        _estado.update { it.copy(mensajeExito = null) }
     }
 }

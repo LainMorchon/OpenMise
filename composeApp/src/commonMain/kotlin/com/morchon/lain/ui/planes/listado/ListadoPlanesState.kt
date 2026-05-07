@@ -7,5 +7,6 @@ data class ListadoPlanesState(
     val estaCargando: Boolean = false,
     val error: String? = null,
     val planAEliminar: Plan? = null,
-    val mostrarDialogoEliminar: Boolean = false
+    val mostrarDialogoEliminar: Boolean = false,
+    val mensajeExito: String? = null
 )

@@ -2,9 +2,6 @@ package com.morchon.lain.ui.perfil
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import openmise.composeapp.generated.resources.Res
+import openmise.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,12 +37,20 @@ fun PerfilScreen(
                 title = { Text("Configurar Objetivos") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_chevron_left_square),
+                            contentDescription = "Atrás",
+                            modifier = Modifier.size(30.dp)
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.guardarCambios() }) {
-                        Icon(Icons.Default.Check, contentDescription = "Guardar")
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_bookmark),
+                            contentDescription = "Guardar",
+                            modifier = Modifier.size(26.dp)
+                        )
                     }
                 }
             )

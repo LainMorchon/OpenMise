@@ -7,11 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +20,9 @@ import com.morchon.lain.ui.consumo.SeleccionarAlimentoViewModel
 import com.morchon.lain.ui.consumo.ConsumibleItem
 import com.morchon.lain.ui.consumo.DialogoConfigurarConsumo
 import com.morchon.lain.ui.consumo.CustomSnackbarHost
+import openmise.composeapp.generated.resources.Res
+import openmise.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,19 +61,31 @@ fun EditarPlanScreen(
                     title = { Text(if (state.plan.id == 0L) "Nuevo Plan" else "Editar Plan") },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_chevron_left_square),
+                                contentDescription = "Atrás",
+                                modifier = Modifier.size(30.dp)
+                            )
                         }
                     },
                     actions = {
                         IconButton(onClick = { viewModel.guardarPlan() }) {
-                            Icon(Icons.Default.Save, contentDescription = "Guardar")
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_bookmark),
+                                contentDescription = "Guardar",
+                                modifier = Modifier.size(26.dp)
+                            )
                         }
                     }
                 )
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = { viewModel.toggleBuscador(true) }) {
-                    Icon(Icons.Default.Add, contentDescription = "Añadir alimento")
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_document_add),
+                        contentDescription = "Añadir alimento",
+                        modifier = Modifier.size(28.dp)
+                    )
                 }
             }
         ) { padding ->
@@ -140,7 +151,7 @@ fun EditarPlanScreen(
                         
                         if (state.listaPlanesDisponibles.isNotEmpty()) {
                             TextButton(onClick = { viewModel.toggleDialogoPlantilla(true) }) {
-                                Icon(Icons.Default.ContentPaste, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Icon(painter = painterResource(Res.drawable.ic_browser), contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text("Usar plantilla")
                             }
@@ -253,7 +264,7 @@ fun ItemPlanRow(item: ItemPlan, onDelete: () -> Unit) {
         },
         trailingContent = {
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                Icon(painter = painterResource(Res.drawable.ic_trash_bin_trash), contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
             }
         }
     )

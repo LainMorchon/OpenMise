@@ -26,6 +26,9 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.toLocalDateTime
+import openmise.composeapp.generated.resources.Res
+import openmise.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +66,11 @@ fun SeleccionarAlimentoScreen(
                     title = { Text("Añadir Consumo") },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_chevron_left_square),
+                                contentDescription = "Atrás",
+                                modifier = Modifier.size(30.dp)
+                            )
                         }
                     }
                 )
@@ -76,7 +83,13 @@ fun SeleccionarAlimentoScreen(
                     onValueChange = { viewModel.onQueryChange(it) },
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     placeholder = { Text("Buscar alimento o receta...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_browser),
+                            contentDescription = null,
+                            modifier = Modifier.size(26.dp)
+                        )
+                    },
                     singleLine = true
                 )
 
@@ -136,7 +149,7 @@ fun SeleccionarAlimentoScreen(
                                             supportingContent = { Text("${plan.tipo} - ${plan.items.size} alimentos") },
                                             trailingContent = {
                                                 Icon(
-                                                    imageVector = Icons.Default.Info,
+                                                    painter = painterResource(Res.drawable.ic_browser),
                                                     contentDescription = "Ver detalles",
                                                     tint = MaterialTheme.colorScheme.primary
                                                 )
@@ -241,7 +254,7 @@ fun DialogoDetallePlan(
                                     supportingContent = { Text("${item.cantidadGramos.toInt()}g - ${item.momentoComida.name.lowercase()}") },
                                     trailingContent = {
                                         IconButton(onClick = { onRegistrarItem(item) }) {
-                                            Icon(Icons.Default.Add, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.primary)
+                                            Icon(painter = painterResource(Res.drawable.ic_document_add), contentDescription = "Añadir", tint = MaterialTheme.colorScheme.primary)
                                         }
                                     }
                                 )
