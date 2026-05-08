@@ -11,6 +11,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.morchon.lain.domain.model.MomentoComida
 import com.morchon.lain.domain.model.RegistroDiario
+import com.morchon.lain.ui.theme.OpenGreen
+import com.morchon.lain.ui.theme.MiseOrange
 import openmise.composeapp.generated.resources.Res
 import openmise.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -114,7 +116,8 @@ fun SelectorFecha(
             Icon(
                 painter = painterResource(Res.drawable.ic_chevron_left_square),
                 contentDescription = "Día anterior",
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(32.dp),
+                tint = MiseOrange
             )
         }
         Text(
@@ -126,7 +129,8 @@ fun SelectorFecha(
             Icon(
                 painter = painterResource(Res.drawable.ic_chevron_right_square),
                 contentDescription = "Día siguiente",
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(32.dp),
+                tint = OpenGreen
             )
         }
     }

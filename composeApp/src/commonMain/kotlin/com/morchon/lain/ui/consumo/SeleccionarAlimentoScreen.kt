@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.morchon.lain.ui.core.components.OpenMiseFilterChip
+import com.morchon.lain.ui.core.components.OpenMiseTextField
 import com.morchon.lain.domain.model.Alimento
 import com.morchon.lain.domain.model.ItemPlan
 import com.morchon.lain.domain.model.MomentoComida
@@ -26,6 +28,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.toLocalDateTime
+import com.morchon.lain.ui.theme.MiseOrange
 import openmise.composeapp.generated.resources.Res
 import openmise.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -65,32 +68,33 @@ fun SeleccionarAlimentoScreen(
                 TopAppBar(
                     title = { Text("Añadir Consumo") },
                     navigationIcon = {
-                        IconButton(onClick = onNavigateBack) {
-                            Icon(
-                                painter = painterResource(Res.drawable.ic_chevron_left_square),
-                                contentDescription = "Atrás",
-                                modifier = Modifier.size(30.dp)
-                            )
-                        }
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_chevron_left_square),
+                            contentDescription = "Atrás",
+                            modifier = Modifier.size(30.dp),
+                            tint = MiseOrange
+                        )
                     }
+                }
                 )
             }
         ) { padding ->
             Column(modifier = Modifier.padding(padding).fillMaxSize()) {
                 // Buscador
-                OutlinedTextField(
+                OpenMiseTextField(
                     value = estado.query,
                     onValueChange = { viewModel.onQueryChange(it) },
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    placeholder = { Text("Buscar alimento o receta...") },
+                    label = "Buscar",
+                    placeholder = "Buscar alimento o receta...",
                     leadingIcon = {
                         Icon(
                             painter = painterResource(Res.drawable.ic_browser),
                             contentDescription = null,
                             modifier = Modifier.size(26.dp)
                         )
-                    },
-                    singleLine = true
+                    }
                 )
 
                 // Tabs
@@ -295,20 +299,20 @@ fun DialogoConfigurarConsumo(
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     Text(alimento.nombre, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
                     
-                    OutlinedTextField(
+                    OpenMiseTextField(
                         value = cantidad,
                         onValueChange = onCantidadChange,
-                        label = { Text("Cantidad (g)") },
+                        label = "Cantidad (g)",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         MomentoComida.entries.forEach { m ->
-                            FilterChip(
+                            OpenMiseFilterChip(
                                 selected = momento == m,
                                 onClick = { onMomentoChange(m) },
-                                label = { Text(m.name.lowercase().replaceFirstChar { it.uppercase() }) }
+                                label = m.name.lowercase().replaceFirstChar { it.uppercase() }
                             )
                         }
                     }
@@ -343,7 +347,7 @@ fun CustomSnackbarHost(hostState: SnackbarHostState, modifier: Modifier = Modifi
     ) { data ->
         Surface(
             shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.inverseSurface,
+            color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 1.0f),
             tonalElevation = 6.dp,
             shadowElevation = 6.dp
         ) {

@@ -18,8 +18,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.morchon.lain.ui.core.components.OpenMiseFilterChip
+import com.morchon.lain.ui.core.components.OpenMiseTextField
 import com.morchon.lain.domain.model.Alimento 
 import com.morchon.lain.ui.core.util.rememberCameraManager
+import com.morchon.lain.ui.theme.MiseOrange
 import openmise.composeapp.generated.resources.Res
 import openmise.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -94,7 +97,8 @@ fun CrearRecetaScreen(
                             Icon(
                                 painter = painterResource(Res.drawable.ic_chevron_left_square),
                                 contentDescription = "Atrás",
-                                modifier = Modifier.size(30.dp)
+                                modifier = Modifier.size(30.dp),
+                                tint = MiseOrange
                             )
                         }
                     },
@@ -106,7 +110,8 @@ fun CrearRecetaScreen(
                                 Icon(
                                     painter = painterResource(Res.drawable.ic_bookmark),
                                     contentDescription = "Guardar",
-                                    modifier = Modifier.size(26.dp)
+                                    modifier = Modifier.size(32.dp),
+                                    tint = MiseOrange
                                 )
                             }
                         }
@@ -197,45 +202,43 @@ fun CrearRecetaScreen(
 
                 // 1. Campo Nombre
                 item {
-                    OutlinedTextField(
+                    OpenMiseTextField(
                         value = state.nombre,
                         onValueChange = { viewModel.onNombreCambiado(it) },
-                        label = { Text("Nombre de la receta") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        label = "Nombre de la receta",
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 
                 // 2. Campo Descripción
                 item {
-                    OutlinedTextField(
+                    OpenMiseTextField(
                         value = state.descripcion,
                         onValueChange = { viewModel.onDescripcionCambiada(it) },
-                        label = { Text("Descripción / Notas") },
+                        label = "Descripción / Notas",
                         modifier = Modifier.fillMaxWidth(),
-                        minLines = 2
+                        singleLine = false
                     )
                 }
 
                 // 3. Campo Pasos de Preparación
                 item {
-                    OutlinedTextField(
+                    OpenMiseTextField(
                         value = state.pasosPreparacion,
                         onValueChange = { viewModel.onPasosCambiados(it) },
-                        label = { Text("Pasos de preparación") },
+                        label = "Pasos de preparación",
                         modifier = Modifier.fillMaxWidth(),
-                        minLines = 4
+                        singleLine = false
                     )
                 }
 
                 // 4. Campo Enlace URL
                 item {
-                    OutlinedTextField(
+                    OpenMiseTextField(
                         value = state.enlaceUrl,
                         onValueChange = { viewModel.onEnlaceCambiado(it) },
-                        label = { Text("Enlace (YouTube, Blog...)") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        label = "Enlace (YouTube, Blog...)",
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 
@@ -334,24 +337,24 @@ fun SeleccionarIngredienteDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     listOf("all" to "Todo", "generic" to "Básicos", "brand" to "Marcas").forEach { (id, label) ->
-                        FilterChip(
+                        OpenMiseFilterChip(
                             selected = filtroSeleccionado == id,
                             onClick = { 
                                 filtroSeleccionado = id
                                 onSearch(busqueda, id)
                             },
-                            label = { Text(label) }
+                            label = label
                         )
                     }
                 }
 
-                OutlinedTextField(
+                OpenMiseTextField(
                     value = busqueda,
                     onValueChange = { 
                         busqueda = it
                         onSearch(it, filtroSeleccionado)
                     },
-                    label = { Text("Buscar alimento...") },
+                    label = "Buscar alimento...",
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         if (state.estaBuscando) {
@@ -392,10 +395,10 @@ fun SeleccionarIngredienteDialog(
                     }
                 }
 
-                OutlinedTextField(
+                OpenMiseTextField(
                     value = gramos,
                     onValueChange = { gramos = it },
-                    label = { Text("Cantidad en gramos") },
+                    label = "Cantidad en gramos",
                     modifier = Modifier.fillMaxWidth()
                 )
             }

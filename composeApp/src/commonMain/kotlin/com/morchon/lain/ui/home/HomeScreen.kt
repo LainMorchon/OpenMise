@@ -8,6 +8,7 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import openmise.composeapp.generated.resources.Res
 import openmise.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
+import com.morchon.lain.ui.core.components.OpenMiseLogo
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,6 +17,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.foundation.BorderStroke
+import com.morchon.lain.ui.theme.OpenGreen
+import com.morchon.lain.ui.theme.MiseOrange
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -43,14 +50,20 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("OpenMise", fontWeight = FontWeight.Bold) },
+                title = { 
+                    OpenMiseLogo(
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold),
+                        showIcon = true,
+                        iconSize = 56.dp
+                    )
+                },
                 actions = {
                     Box {
                         IconButton(onClick = { mostrarMenu = true }) {
                             Icon(
                                 painter = painterResource(Res.drawable.ic_hamburger_6),
                                 contentDescription = "Opciones",
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(40.dp)
                             )
                         }
                         DropdownMenu(
@@ -63,7 +76,7 @@ fun HomeScreen(
                                     mostrarMenu = false
                                     alNavegarAHistorial()
                                 },
-                                leadingIcon = { Icon(painter = painterResource(Res.drawable.ic_history_2), contentDescription = null) }
+                                leadingIcon = { Icon(painter = painterResource(Res.drawable.ic_history_2), contentDescription = null, modifier = Modifier.size(26.dp)) }
                             )
                             HorizontalDivider()
                             DropdownMenuItem(
@@ -72,7 +85,7 @@ fun HomeScreen(
                                     mostrarMenu = false
                                     alNavegarAPlanes()
                                 },
-                                leadingIcon = { Icon(painter = painterResource(Res.drawable.ic_plan), contentDescription = null) }
+                                leadingIcon = { Icon(painter = painterResource(Res.drawable.ic_plan), contentDescription = null, modifier = Modifier.size(26.dp)) }
                             )
                             HorizontalDivider()
                             DropdownMenuItem(
@@ -81,7 +94,7 @@ fun HomeScreen(
                                     mostrarMenu = false
                                     alNavegarAPerfil()
                                 },
-                                leadingIcon = { Icon(painter = painterResource(Res.drawable.ic_settings), contentDescription = null) }
+                                leadingIcon = { Icon(painter = painterResource(Res.drawable.ic_settings), contentDescription = null, modifier = Modifier.size(26.dp)) }
                             )
                             HorizontalDivider()
                             DropdownMenuItem(
@@ -94,7 +107,8 @@ fun HomeScreen(
                                     Icon(
                                         Icons.AutoMirrored.Filled.ExitToApp,
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.error
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(26.dp)
                                     ) 
                                 }
                             )
@@ -135,52 +149,71 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "¡Hola, ${estado.usuario?.nombre ?: "Usuario"}! 👋",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = OpenGreen)) { append("¡") }
+                    withStyle(style = SpanStyle(color = Color.White)) { append("Hola, ") }
+                    withStyle(style = SpanStyle(color = MiseOrange)) { append(estado.usuario?.nombre ?: "Usuario") }
+                    withStyle(style = SpanStyle(color = OpenGreen)) { append("!") }
+                    append(" 👋")
+                },
+                fontSize = 32.sp,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Tu resumen de hoy",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = OpenGreen,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             // Tarjeta Principal: Calorías
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                border = BorderStroke(2.dp, OpenGreen)
+            ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Text("Calorías Consumidas", fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     
                     val progresoKcal = if (estado.progreso.kcalObjetivo > 0) {
                         (estado.progreso.kcalConsumidas / estado.progreso.kcalObjetivo).toFloat()
                     } else 0f
                     
-                    Box(contentAlignment = Alignment.Center) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         CircularProgressIndicator(
                             progress = { progresoKcal.coerceIn(0f, 1f) },
-                            modifier = Modifier.size(120.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            strokeWidth = 10.dp
+                            modifier = Modifier.size(140.dp),
+                            color = OpenGreen,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                            strokeWidth = 12.dp
                         )
                         Text(
                             text = "${progresoKcal.times(100).toInt()}%",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.ExtraBold
                         )
                     }
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "${estado.progreso.kcalConsumidas.toInt()} / ${estado.progreso.kcalObjetivo} kcal",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        text = "${estado.progreso.kcalConsumidas.toInt()} / ${estado.progreso.kcalObjetivo} kcal ⚡",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 }
             }
@@ -188,27 +221,31 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Tarjeta Secundaria: Macros
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                border = BorderStroke(2.dp, MiseOrange)
+            ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Macronutrientes", fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(16.dp))
 
                     BarraMacro(
-                        nombre = "Proteínas",
+                        nombre = "Proteínas 🍗",
                         consumido = estado.progreso.proteinasConsumidas.toInt(),
                         total = estado.progreso.proteinasObjetivo,
                         color = Color(0xFFE57373)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     BarraMacro(
-                        nombre = "Carbohidratos",
+                        nombre = "Carbohidratos 🍝",
                         consumido = estado.progreso.carbohidratosConsumidos.toInt(),
                         total = estado.progreso.carbohidratosObjetivo,
                         color = Color(0xFF64B5F6)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     BarraMacro(
-                        nombre = "Grasas",
+                        nombre = "Grasas 🥑",
                         consumido = estado.progreso.grasasConsumidas.toInt(),
                         total = estado.progreso.grasasObjetivo,
                         color = Color(0xFFFFD54F)
@@ -221,14 +258,14 @@ fun HomeScreen(
 
 @Composable
 fun BarraMacro(nombre: String, consumido: Int, total: Int, color: Color) {
-    val progreso = consumido.toFloat() / total.toFloat()
+    val progreso = (if (total > 0) consumido.toFloat() / total.toFloat() else 0f).coerceIn(0f, 1f)
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(nombre, fontSize = 14.sp)
-            Text("${consumido}g / ${total}g", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(nombre, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
+            Text("${consumido}g / ${total}g", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(modifier = Modifier.height(4.dp))
         LinearProgressIndicator(

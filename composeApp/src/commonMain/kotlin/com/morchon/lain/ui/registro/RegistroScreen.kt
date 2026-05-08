@@ -8,6 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.morchon.lain.ui.core.components.OpenMiseTextField
+import com.morchon.lain.ui.theme.MiseOrange
 import openmise.composeapp.generated.resources.Res
 import openmise.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -36,7 +38,8 @@ fun RegistroScreen(
                         Icon(
                             painter = painterResource(Res.drawable.ic_chevron_left_square),
                             contentDescription = "Atrás",
-                            modifier = Modifier.size(30.dp)
+                            modifier = Modifier.size(30.dp),
+                            tint = MiseOrange
                         )
                     }
                 }
@@ -51,20 +54,18 @@ fun RegistroScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            OutlinedTextField(
+            OpenMiseTextField(
                 value = estado.nombre,
                 onValueChange = { viewModel.alCambiarNombre(it) },
-                label = { Text("Nombre") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                label = "Nombre",
+                modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
+            OpenMiseTextField(
                 value = estado.email,
                 onValueChange = { viewModel.alCambiarEmail(it) },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                label = "Email",
+                modifier = Modifier.fillMaxWidth()
             )
 
             if (estado.error != null) {

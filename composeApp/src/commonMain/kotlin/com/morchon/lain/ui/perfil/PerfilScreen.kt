@@ -8,9 +8,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.morchon.lain.ui.core.components.OpenMiseTextField
+import com.morchon.lain.ui.theme.MiseOrange
 import openmise.composeapp.generated.resources.Res
 import openmise.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -40,7 +43,8 @@ fun PerfilScreen(
                         Icon(
                             painter = painterResource(Res.drawable.ic_chevron_left_square),
                             contentDescription = "Atrás",
-                            modifier = Modifier.size(30.dp)
+                            modifier = Modifier.size(30.dp),
+                            tint = MiseOrange
                         )
                     }
                 },
@@ -49,7 +53,8 @@ fun PerfilScreen(
                         Icon(
                             painter = painterResource(Res.drawable.ic_bookmark),
                             contentDescription = "Guardar",
-                            modifier = Modifier.size(26.dp)
+                            modifier = Modifier.size(32.dp),
+                            tint = MiseOrange
                         )
                     }
                 }
@@ -69,41 +74,37 @@ fun PerfilScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            OutlinedTextField(
+            OpenMiseTextField(
                 value = estado.kcal,
                 onValueChange = viewModel::onKcalChange,
-                label = { Text("Calorías Diarias (kcal)") },
+                label = "Calorías Diarias (kcal)",
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
+                OpenMiseTextField(
                     value = estado.proteinas,
                     onValueChange = viewModel::onProteinasChange,
-                    label = { Text("Proteínas (g)") },
+                    label = "Proteínas (g)",
                     modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
-                OutlinedTextField(
+                OpenMiseTextField(
                     value = estado.carbohidratos,
                     onValueChange = viewModel::onCarbohidratosChange,
-                    label = { Text("Carbohidratos (g)") },
+                    label = "Carbohidratos (g)",
                     modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             }
 
-            OutlinedTextField(
+            OpenMiseTextField(
                 value = estado.grasas,
                 onValueChange = viewModel::onGrasasChange,
-                label = { Text("Grasas (g)") },
+                label = "Grasas (g)",
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
             Spacer(modifier = Modifier.weight(1f))

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.morchon.lain.domain.model.Receta
+import com.morchon.lain.ui.theme.MiseOrange
 import openmise.composeapp.generated.resources.Res
 import openmise.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -38,14 +39,19 @@ fun ListadoRecetasScreen(
                         Icon(
                             painter = painterResource(Res.drawable.ic_chevron_left_square),
                             contentDescription = "Atrás",
-                            modifier = Modifier.size(30.dp)
+                            modifier = Modifier.size(30.dp),
+                            tint = MiseOrange
                         )
                     }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onNavigateToCrear) {
+            FloatingActionButton(
+                onClick = onNavigateToCrear,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
                 Icon(
                     painter = painterResource(Res.drawable.ic_document_add),
                     contentDescription = "Crear Receta",

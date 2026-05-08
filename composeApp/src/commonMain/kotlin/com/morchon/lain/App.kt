@@ -20,12 +20,13 @@ import com.morchon.lain.ui.diario.DiarioScreen
 import com.morchon.lain.ui.planes.listado.ListadoPlanesScreen
 import com.morchon.lain.ui.planes.editar.EditarPlanScreen
 import com.morchon.lain.ui.login.LoginViewModel
+import com.morchon.lain.ui.theme.OpenMiseTheme
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun App() {
-    MaterialTheme {
+    OpenMiseTheme {
         KoinContext {
             // El controlador que maneja los viajes entre pantallas
             val navController = rememberNavController()

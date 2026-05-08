@@ -12,14 +12,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.morchon.lain.ui.core.components.OpenMiseFilterChip
+import com.morchon.lain.ui.core.components.OpenMiseTextField
 import com.morchon.lain.domain.model.Plan
 import com.morchon.lain.domain.model.ItemPlan
 import com.morchon.lain.ui.consumo.SeleccionarAlimentoViewModel
 import com.morchon.lain.ui.consumo.ConsumibleItem
 import com.morchon.lain.ui.consumo.DialogoConfigurarConsumo
 import com.morchon.lain.ui.consumo.CustomSnackbarHost
+import com.morchon.lain.ui.theme.MiseOrange
 import openmise.composeapp.generated.resources.Res
 import openmise.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -64,7 +68,8 @@ fun EditarPlanScreen(
                             Icon(
                                 painter = painterResource(Res.drawable.ic_chevron_left_square),
                                 contentDescription = "Atrás",
-                                modifier = Modifier.size(30.dp)
+                                modifier = Modifier.size(30.dp),
+                                tint = MiseOrange
                             )
                         }
                     },
@@ -73,7 +78,8 @@ fun EditarPlanScreen(
                             Icon(
                                 painter = painterResource(Res.drawable.ic_bookmark),
                                 contentDescription = "Guardar",
-                                modifier = Modifier.size(26.dp)
+                                modifier = Modifier.size(32.dp),
+                                tint = MiseOrange
                             )
                         }
                     }
@@ -100,12 +106,11 @@ fun EditarPlanScreen(
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            OutlinedTextField(
+                            OpenMiseTextField(
                                 value = state.plan.nombre,
                                 onValueChange = { viewModel.onNombreChanged(it) },
-                                label = { Text("Nombre del Plan") },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true
+                                label = "Nombre del Plan",
+                                modifier = Modifier.fillMaxWidth()
                             )
                             
                             Spacer(modifier = Modifier.height(12.dp))
@@ -113,10 +118,11 @@ fun EditarPlanScreen(
                             Text("Tipo de Plan:", style = MaterialTheme.typography.labelLarge)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 listOf("DIA_UNICO", "SEMANAL").forEach { tipo ->
-                                    FilterChip(
+                                    OpenMiseFilterChip(
                                         selected = state.plan.tipo == tipo,
                                         onClick = { viewModel.onTipoChanged(tipo) },
-                                        label = { Text(tipo.replace("_", " ")) }
+                                        label = tipo.replace("_", " "),
+                                        accentColor = MaterialTheme.colorScheme.secondary
                                     )
                                 }
                             }
@@ -128,10 +134,10 @@ fun EditarPlanScreen(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     (1..7).forEach { dia ->
-                                        FilterChip(
+                                        OpenMiseFilterChip(
                                             selected = state.indiceDiaSeleccionado == dia,
                                             onClick = { viewModel.onDiaSeleccionado(dia) },
-                                            label = { Text("Día $dia") }
+                                            label = "Día $dia"
                                         )
                                     }
                                 }
@@ -284,12 +290,12 @@ fun ModalBuscadorAlimentos(
         text = {
             Box(contentAlignment = Alignment.Center) {
                 Column(modifier = Modifier.fillMaxWidth().height(400.dp)) {
-                    OutlinedTextField(
+                    OpenMiseTextField(
                         value = estado.query,
                         onValueChange = onQueryChange,
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Ej: Pollo, Arroz...") },
-                        singleLine = true
+                        label = "Buscar",
+                        placeholder = "Ej: Pollo, Arroz..."
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     if (estado.cargando) {

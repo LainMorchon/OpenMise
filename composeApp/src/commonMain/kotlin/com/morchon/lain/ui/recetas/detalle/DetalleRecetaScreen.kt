@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.morchon.lain.domain.model.Receta
+import com.morchon.lain.ui.theme.MiseOrange
 import openmise.composeapp.generated.resources.Res
 import openmise.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
@@ -45,7 +46,8 @@ fun DetalleRecetaScreen(
                         Icon(
                             painter = painterResource(Res.drawable.ic_chevron_left_square),
                             contentDescription = "Atrás",
-                            modifier = Modifier.size(30.dp)
+                            modifier = Modifier.size(30.dp),
+                            tint = MiseOrange
                         )
                     }
                 },
