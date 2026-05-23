@@ -17,5 +17,6 @@ data class SeleccionarAlimentoState(
     val cantidadGramos: String = "100",
     val momentoComida: MomentoComida = MomentoComida.DESAYUNO,
     val guardadoExitoso: Boolean = false,
-    val mensajeInformativo: String? = null
+    val mensajeInformativo: String? = null,
+    val filtroAlimento: String = "all" // "all", "generic", "brand"
 )

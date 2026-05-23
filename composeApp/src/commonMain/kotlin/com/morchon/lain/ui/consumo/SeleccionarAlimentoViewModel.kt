@@ -59,9 +59,14 @@ class SeleccionarAlimentoViewModel(
     private fun buscar(query: String) {
         viewModelScope.launch {
             _estado.update { it.copy(cargando = true) }
-            val resultados = buscarConsumiblesUseCase(query)
+            val resultados = buscarConsumiblesUseCase(query, _estado.value.filtroAlimento)
             _estado.update { it.copy(listaResultados = resultados, cargando = false) }
         }
+    }
+
+    fun onFiltroChange(nuevoFiltro: String) {
+        _estado.update { it.copy(filtroAlimento = nuevoFiltro) }
+        buscar(_estado.value.query)
     }
 
     fun seleccionarAlimento(alimento: Alimento?) {

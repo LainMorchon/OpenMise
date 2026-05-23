@@ -108,6 +108,29 @@ fun SeleccionarAlimentoScreen(
                     }
                 }
 
+                if (tabSeleccionada == 0) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OpenMiseFilterChip(
+                            selected = estado.filtroAlimento == "all",
+                            onClick = { viewModel.onFiltroChange("all") },
+                            label = "Todos"
+                        )
+                        OpenMiseFilterChip(
+                            selected = estado.filtroAlimento == "generic",
+                            onClick = { viewModel.onFiltroChange("generic") },
+                            label = "Crudo"
+                        )
+                        OpenMiseFilterChip(
+                            selected = estado.filtroAlimento == "brand",
+                            onClick = { viewModel.onFiltroChange("brand") },
+                            label = "Marcas"
+                        )
+                    }
+                }
+
                 when (tabSeleccionada) {
                     0, 1 -> {
                         val filtrados = if (tabSeleccionada == 0) {

@@ -21,24 +21,29 @@ class AlimentoRepositoryImpl(
     }
 
     override suspend fun buscarAlimentos(query: String, type: String): List<Alimento> {
-        val response = apiService.buscarAlimentos(query, type)
-        
-        return response.foods?.food?.map { dto ->
-            val (kcal, prot, carbs, fats) = extraerMacrosDeDescripcion(dto.foodDescription ?: "")
-            
-            // Log para depuración: ver qué tipo llega realmente
-            println("Alimento: ${dto.foodName} | Tipo: ${dto.foodType}")
+        return try {
+            val response = apiService.buscarAlimentos(query, type)
 
-            Alimento(
-                id = dto.foodId,
-                nombre = dto.foodName,
-                origen = if (dto.foodType?.contains("Brand", ignoreCase = true) == true) "API_COMMERCIAL" else "API_RAW",
-                kcalPor100g = kcal,
-                proteinasPor100g = prot,
-                carbohidratosPor100g = carbs,
-                grasasPor100g = fats
-            )
-        } ?: emptyList()
+            response.foods?.food?.map { dto ->
+                val (kcal, prot, carbs, fats) = extraerMacrosDeDescripcion(dto.foodDescription ?: "")
+
+                // Log para depuración: ver qué tipo llega realmente
+                println("Alimento: ${dto.foodName} | Tipo: ${dto.foodType}")
+
+                Alimento(
+                    id = dto.foodId,
+                    nombre = dto.foodName,
+                    origen = if (dto.foodType?.contains("Brand", ignoreCase = true) == true) "API_COMMERCIAL" else "API_RAW",
+                    kcalPor100g = kcal,
+                    proteinasPor100g = prot,
+                    carbohidratosPor100g = carbs,
+                    grasasPor100g = fats
+                )
+            } ?: emptyList()
+        } catch (e: Exception) {
+            println("Error al buscar alimentos: ${e.message}")
+            emptyList()
+        }
     }
 
     private fun extraerMacrosDeDescripcion(description: String): List<Float> {
