@@ -25,7 +25,7 @@ import com.morchon.lain.data.database.entity.ItemPlanEntity
         PlanEntity::class,
         ItemPlanEntity::class
     ],
-    version = 7
+    version = 8
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun usuarioDao(): UsuarioDao

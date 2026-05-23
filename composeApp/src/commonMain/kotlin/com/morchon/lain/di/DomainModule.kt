@@ -13,6 +13,7 @@ import com.morchon.lain.domain.usecase.registro.EliminarRegistroUseCase
 import com.morchon.lain.domain.usecase.registro.RegistrarConsumoUseCase
 import com.morchon.lain.domain.usecase.usuario.ActualizarObjetivosUseCase
 import com.morchon.lain.domain.usecase.usuario.CerrarSesionUseCase
+import com.morchon.lain.domain.usecase.usuario.EliminarUsuarioUseCase
 import com.morchon.lain.domain.usecase.usuario.LoginUseCase
 import com.morchon.lain.domain.usecase.usuario.ObtenerUsuarioActivoUseCase
 import com.morchon.lain.domain.usecase.usuario.ObtenerUsuariosUseCase
@@ -34,6 +35,7 @@ val domainModule = module {
     factory { ObtenerUsuariosUseCase(get()) }
     factory { LoginUseCase(get()) }
     factory { RegistrarUsuarioUseCase(get()) }
+    factory { EliminarUsuarioUseCase(get()) }
     factory { ObtenerUsuarioActivoUseCase(get()) }
     factory { CerrarSesionUseCase(get()) }
     factory { ActualizarObjetivosUseCase(get()) }

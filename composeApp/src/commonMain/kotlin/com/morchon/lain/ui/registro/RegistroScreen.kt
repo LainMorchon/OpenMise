@@ -8,6 +8,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.foundation.text.KeyboardOptions
 import com.morchon.lain.ui.core.components.OpenMiseTextField
 import com.morchon.lain.ui.theme.MiseOrange
 import openmise.composeapp.generated.resources.Res
@@ -66,6 +69,15 @@ fun RegistroScreen(
                 onValueChange = { viewModel.alCambiarEmail(it) },
                 label = "Email",
                 modifier = Modifier.fillMaxWidth()
+            )
+
+            OpenMiseTextField(
+                value = estado.contrasena,
+                onValueChange = { viewModel.alCambiarContrasena(it) },
+                label = "Contraseña",
+                modifier = Modifier.fillMaxWidth(),
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
 
             if (estado.error != null) {

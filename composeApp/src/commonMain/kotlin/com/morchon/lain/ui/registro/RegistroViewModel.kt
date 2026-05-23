@@ -25,11 +25,16 @@ class RegistroViewModel(
         _estado.update { it.copy(email = nuevoEmail, error = null) }
     }
 
+    fun alCambiarContrasena(nuevaContrasena: String) {
+        _estado.update { it.copy(contrasena = nuevaContrasena, error = null) }
+    }
+
     fun registrarUsuario() {
         val nombre = _estado.value.nombre
         val email = _estado.value.email
+        val contrasena = _estado.value.contrasena
 
-        if (nombre.isBlank() || email.isBlank()) {
+        if (nombre.isBlank() || email.isBlank() || contrasena.isBlank()) {
             _estado.update { it.copy(error = "Rellena todos los campos") }
             return
         }
@@ -37,7 +42,7 @@ class RegistroViewModel(
         viewModelScope.launch {
             _estado.update { it.copy(estaCargando = true) }
             
-            val resultado = registrarUsuarioUseCase(nombre, email)
+            val resultado = registrarUsuarioUseCase(nombre, email, contrasena)
 
             resultado.onSuccess {
                 _estado.update { it.copy(estaCargando = false, registroExitoso = true) }

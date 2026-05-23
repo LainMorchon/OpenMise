@@ -30,6 +30,10 @@ class UsuarioRepositoryImpl(
         return usuarioDao.obtenerUsuarioPorEmail(email)?.aDominio()
     }
 
+    override suspend fun obtenerUsuarioPorId(id: String): Usuario? {
+        return usuarioDao.obtenerUsuarioPorId(id)?.aDominio()
+    }
+
     override suspend fun guardarUsuario(usuario: Usuario) {
         usuarioDao.guardarUsuario(usuario.aEntity())
     }
@@ -37,6 +41,10 @@ class UsuarioRepositoryImpl(
     override suspend fun setUsuarioActivo(usuarioId: String) {
         usuarioDao.desactivarTodos()
         usuarioDao.setEstadoActivo(usuarioId, true)
+    }
+
+    override suspend fun eliminarUsuario(usuarioId: String) {
+        usuarioDao.eliminarUsuario(usuarioId)
     }
 
     override suspend fun cerrarSesion() {

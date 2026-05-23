@@ -19,6 +19,11 @@ interface UsuarioRepository {
     fun obtenerTodosLosUsuarios(): Flow<List<Usuario>>
 
     /**
+     * Busca un usuario por ID.
+     */
+    suspend fun obtenerUsuarioPorId(id: String): Usuario?
+
+    /**
      * Busca un usuario por email.
      */
     suspend fun obtenerUsuarioPorEmail(email: String): Usuario?
@@ -32,6 +37,11 @@ interface UsuarioRepository {
      * Marca a un usuario como el "activo" en la sesión.
      */
     suspend fun setUsuarioActivo(usuarioId: String)
+
+    /**
+     * Elimina un usuario por completo de la base de datos.
+     */
+    suspend fun eliminarUsuario(usuarioId: String)
 
     /**
      * Elimina los datos de sesión local.

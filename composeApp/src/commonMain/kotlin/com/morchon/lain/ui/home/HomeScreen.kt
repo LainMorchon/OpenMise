@@ -9,6 +9,8 @@ import openmise.composeapp.generated.resources.Res
 import openmise.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import com.morchon.lain.ui.core.components.OpenMiseLogo
+import com.morchon.lain.ui.core.components.OpenMiseTextField
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -106,6 +108,22 @@ fun HomeScreen(
                                 leadingIcon = { 
                                     Icon(
                                         Icons.AutoMirrored.Filled.ExitToApp,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(26.dp)
+                                    ) 
+                                }
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text("Eliminar Cuenta", color = MaterialTheme.colorScheme.error) },
+                                onClick = {
+                                    mostrarMenu = false
+                                    viewModel.mostrarDialogoEliminar(true)
+                                },
+                                leadingIcon = { 
+                                    Icon(
+                                        painter = painterResource(Res.drawable.ic_trash_bin_trash),
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.error,
                                         modifier = Modifier.size(26.dp)
@@ -253,6 +271,47 @@ fun HomeScreen(
                 }
             }
         }
+    }
+
+    if (estado.mostrarDialogoEliminar) {
+        AlertDialog(
+            onDismissRequest = { viewModel.mostrarDialogoEliminar(false) },
+            title = { Text("¿Eliminar cuenta definitivamente?") },
+            text = {
+                Column {
+                    Text("Esta acción no se puede deshacer. Por favor, introduce tu contraseña para confirmar.")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OpenMiseTextField(
+                        value = estado.contrasenaConfirmacion,
+                        onValueChange = { viewModel.alCambiarContrasenaConfirmacion(it) },
+                        label = "Contraseña",
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (estado.errorEliminar != null) {
+                        Text(
+                            text = estado.errorEliminar!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { viewModel.eliminarCuenta() },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Eliminar definitivamente")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.mostrarDialogoEliminar(false) }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 

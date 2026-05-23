@@ -6,5 +6,8 @@ import com.morchon.lain.domain.model.Usuario
 data class HomeState(
     val usuario: Usuario? = null,
     val progreso: ConsumoProgreso = ConsumoProgreso(),
-    val sesionCerrada: Boolean = false
+    val sesionCerrada: Boolean = false,
+    val mostrarDialogoEliminar: Boolean = false,
+    val contrasenaConfirmacion: String = "",
+    val errorEliminar: String? = null
 )

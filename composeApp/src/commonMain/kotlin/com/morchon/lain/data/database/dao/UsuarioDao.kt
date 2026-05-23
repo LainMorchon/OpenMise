@@ -37,6 +37,12 @@ interface UsuarioDao {
     suspend fun guardarUsuario(usuario: UsuarioEntity)
 
     /**
+     * Elimina un usuario por su ID.
+     */
+    @Query("DELETE FROM tabla_usuario WHERE id = :id")
+    suspend fun eliminarUsuario(id: String)
+
+    /**
      * Actualiza el estado de activo de un usuario.
      */
     @Query("UPDATE tabla_usuario SET is_active = :active WHERE id = :id")

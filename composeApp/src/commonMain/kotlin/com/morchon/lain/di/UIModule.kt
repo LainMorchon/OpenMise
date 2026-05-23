@@ -17,9 +17,9 @@ import org.koin.dsl.module
 val uiModule = module {
     // Definición de ViewModels con sus dependencias (UseCases)
     
-    viewModel { LoginViewModel(get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { RegistroViewModel(get()) }
-    viewModel { HomeViewModel(get(), get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get(), get()) }
     viewModel { SeleccionarAlimentoViewModel(get(), get(), get(), get()) }
     viewModel { PerfilViewModel(get(), get()) }
     

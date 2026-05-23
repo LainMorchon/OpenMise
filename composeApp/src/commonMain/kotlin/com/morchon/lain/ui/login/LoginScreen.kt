@@ -49,6 +49,7 @@ fun LoginScreen(
         alEscribirContrasena = { viewModel.alCambiarContrasena(it) },
         alPulsarLogin = { viewModel.hacerLogin() },
         alSeleccionarUsuario = { viewModel.seleccionarUsuario(it) },
+        alEliminarUsuario = { viewModel.eliminarUsuario(it) },
         alPulsarRegistrar = alNavegarAlRegistro
     )
 }
@@ -60,6 +61,7 @@ fun ContenidoLogin(
     alEscribirContrasena: (String) -> Unit,
     alPulsarLogin: () -> Unit,
     alSeleccionarUsuario: (Usuario) -> Unit,
+    alEliminarUsuario: (Usuario) -> Unit,
     alPulsarRegistrar: () -> Unit
 ) {
     Surface(
@@ -105,7 +107,10 @@ fun ContenidoLogin(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(estado.usuariosRegistrados) { usuario ->
-                        CardUsuario(usuario, onClick = { alSeleccionarUsuario(usuario) })
+                        CardUsuario(
+                            usuario = usuario, 
+                            onClick = { alSeleccionarUsuario(usuario) }
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(32.dp))
@@ -126,13 +131,7 @@ fun ContenidoLogin(
                 onValueChange = alEscribirContrasena,
                 label = "Contraseña",
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
-                supportingText = { 
-                    Text(
-                        text = "Cualquier contraseña sirve (Demo)",
-                        fontWeight = FontWeight.Bold
-                    ) 
-                }
+                modifier = Modifier.fillMaxWidth()
             )
 
             if (estado.error != null) {
@@ -183,7 +182,10 @@ fun ContenidoLogin(
 }
 
 @Composable
-fun CardUsuario(usuario: Usuario, onClick: () -> Unit) {
+fun CardUsuario(
+    usuario: Usuario, 
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .width(100.dp)
@@ -227,6 +229,7 @@ fun LoginScreenPreview() {
             alEscribirContrasena = {},
             alPulsarLogin = {},
             alSeleccionarUsuario = {},
+            alEliminarUsuario = {},
             alPulsarRegistrar = {}
         )
     }

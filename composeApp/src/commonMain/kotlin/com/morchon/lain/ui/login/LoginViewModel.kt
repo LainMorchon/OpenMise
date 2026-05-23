@@ -3,6 +3,7 @@ package com.morchon.lain.ui.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.morchon.lain.domain.model.Usuario
+import com.morchon.lain.domain.usecase.usuario.EliminarUsuarioUseCase
 import com.morchon.lain.domain.usecase.usuario.LoginUseCase
 import com.morchon.lain.domain.usecase.usuario.ObtenerUsuariosUseCase
 import kotlinx.coroutines.delay
@@ -14,7 +15,8 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel(
     private val obtenerUsuariosUseCase: ObtenerUsuariosUseCase,
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    private val eliminarUsuarioUseCase: EliminarUsuarioUseCase
 ): ViewModel() {
     private val _estado = MutableStateFlow(LoginState())
     val estado: StateFlow<LoginState> = _estado.asStateFlow()
@@ -41,21 +43,31 @@ class LoginViewModel(
 
     fun hacerLogin() {
         val emailActual = _estado.value.email
+        val contrasenaActual = _estado.value.contrasena
         
-        if(emailActual.isBlank()) {
-            _estado.update { it.copy(error = "Introduce un email") }
+        if(emailActual.isBlank() || contrasenaActual.isBlank()) {
+            _estado.update { it.copy(error = "Introduce email y contraseña") }
             return
         }
 
         viewModelScope.launch {
             _estado.update { it.copy(estaCargando = true, error = null) }
             
-            val exito = loginUseCase(emailActual)
+            val exito = loginUseCase(emailActual, contrasenaActual)
 
             if (exito) {
                 _estado.update { it.copy(estaCargando = false, loginExitoso = true) }
             } else {
-                _estado.update { it.copy(estaCargando = false, error = "Usuario no encontrado") }
+                _estado.update { it.copy(estaCargando = false, error = "Credenciales incorrectas") }
+            }
+        }
+    }
+
+    fun eliminarUsuario(usuario: Usuario) {
+        viewModelScope.launch {
+            eliminarUsuarioUseCase(usuario.id)
+            if (_estado.value.email == usuario.email) {
+                _estado.update { it.copy(email = "", contrasena = "") }
             }
         }
     }
