@@ -6,5 +6,7 @@ data class RegistroState(
     val contrasena: String = "",
     val estaCargando: Boolean = false,
     val error: String? = null,
+    val errorEmail: String? = null,
+    val errorContrasena: String? = null,
     val registroExitoso: Boolean = false
 )

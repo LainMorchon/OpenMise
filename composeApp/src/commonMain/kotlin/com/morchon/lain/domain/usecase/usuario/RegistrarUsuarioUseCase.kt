@@ -17,6 +17,14 @@ class RegistrarUsuarioUseCase(
             return Result.failure(Exception("Todos los campos son obligatorios"))
         }
 
+        if (!esEmailValido(email)) {
+            return Result.failure(Exception("El formato del email no es válido"))
+        }
+
+        if (contrasena.length < 6) {
+            return Result.failure(Exception("La contraseña debe tener al menos 6 caracteres"))
+        }
+
         val usuarioExistente = repository.obtenerUsuarioPorEmail(email)
         if (usuarioExistente != null) {
             return Result.failure(Exception("El email ya está registrado"))
@@ -36,5 +44,10 @@ class RegistrarUsuarioUseCase(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    private fun esEmailValido(email: String): Boolean {
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
+        return email.matches(emailRegex)
     }
 }

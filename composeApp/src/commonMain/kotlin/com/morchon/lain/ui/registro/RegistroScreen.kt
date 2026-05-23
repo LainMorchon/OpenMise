@@ -68,7 +68,9 @@ fun RegistroScreen(
                 value = estado.email,
                 onValueChange = { viewModel.alCambiarEmail(it) },
                 label = "Email",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = estado.errorEmail != null,
+                supportingText = estado.errorEmail?.let { { Text(it) } }
             )
 
             OpenMiseTextField(
@@ -77,7 +79,9 @@ fun RegistroScreen(
                 label = "Contraseña",
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                isError = estado.errorContrasena != null,
+                supportingText = estado.errorContrasena?.let { { Text(it) } }
             )
 
             if (estado.error != null) {

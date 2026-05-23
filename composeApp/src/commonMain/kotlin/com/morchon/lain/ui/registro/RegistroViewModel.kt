@@ -22,11 +22,11 @@ class RegistroViewModel(
     }
 
     fun alCambiarEmail(nuevoEmail: String) {
-        _estado.update { it.copy(email = nuevoEmail, error = null) }
+        _estado.update { it.copy(email = nuevoEmail, errorEmail = null, error = null) }
     }
 
     fun alCambiarContrasena(nuevaContrasena: String) {
-        _estado.update { it.copy(contrasena = nuevaContrasena, error = null) }
+        _estado.update { it.copy(contrasena = nuevaContrasena, errorContrasena = null, error = null) }
     }
 
     fun registrarUsuario() {
@@ -34,10 +34,24 @@ class RegistroViewModel(
         val email = _estado.value.email
         val contrasena = _estado.value.contrasena
 
+        var hayError = false
+
         if (nombre.isBlank() || email.isBlank() || contrasena.isBlank()) {
             _estado.update { it.copy(error = "Rellena todos los campos") }
-            return
+            hayError = true
         }
+
+        if (!esEmailValido(email)) {
+            _estado.update { it.copy(errorEmail = "Formato de email inválido") }
+            hayError = true
+        }
+
+        if (contrasena.length < 6) {
+            _estado.update { it.copy(errorContrasena = "Mínimo 6 caracteres") }
+            hayError = true
+        }
+
+        if (hayError) return
 
         viewModelScope.launch {
             _estado.update { it.copy(estaCargando = true) }
@@ -50,5 +64,10 @@ class RegistroViewModel(
                 _estado.update { it.copy(estaCargando = false, error = error.message) }
             }
         }
+    }
+
+    private fun esEmailValido(email: String): Boolean {
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
+        return email.matches(emailRegex)
     }
 }
