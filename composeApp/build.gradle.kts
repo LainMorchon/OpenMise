@@ -123,6 +123,9 @@ kotlin {
                 // Coil KMP
                 implementation(libs.coil.compose)
                 implementation(libs.coil.network.ktor)
+
+                // Seguridad
+                implementation(libs.krypto)
             }
         }
         

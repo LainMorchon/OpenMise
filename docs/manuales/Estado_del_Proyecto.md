@@ -16,12 +16,12 @@ El proyecto sigue una arquitectura **Clean Architecture** estricta, asegurando q
 - **Modelos:** `Alimento`, `Receta`, `Ingrediente`, `Usuario`, `ObjetivosNutricionales`, `RegistroDiario`, `ConsumoProgreso`.
 - **Casos de Uso (Implementados):**
     - **Recetas:** `ObtenerRecetasUseCase`, `ObtenerDetalleRecetaUseCase`, `EliminarRecetaUseCase`, `GuardarRecetaUseCase`.
-    - **Usuario:** `LoginUseCase`, `RegistrarUsuarioUseCase`, `ObtenerUsuarioActivoUseCase`, `CerrarSesionUseCase`, `ActualizarObjetivosUseCase`.
+    - **Usuario:** `LoginUseCase`, `RegistrarUsuarioUseCase`, `ObtenerUsuarioActivoUseCase`, `CerrarSesionUseCase`, `ActualizarObjetivosUseCase`, `EliminarUsuarioUseCase` (con validación de seguridad).
     - **Alimentos:** `BuscarAlimentosUseCase`, `GuardarAlimentoLocalUseCase`.
     - **Consumo:** `BuscarConsumiblesUseCase`, `RegistrarConsumoUseCase`, `ObtenerProgresoDiarioUseCase`.
 
 ### 🔵 Capa de Datos
-- **Room KMP (v6):** `AppDatabase`, `AlimentoEntity`, `UsuarioEntity` (con objetivos), `DetalleRecetaEntity`, `IngredienteRecetaEntity`, `RegistroDiarioEntity`.
+- **Room KMP (v8):** `AppDatabase`, `AlimentoEntity`, `UsuarioEntity` (con objetivos y contraseña), `DetalleRecetaEntity`, `IngredienteRecetaEntity`, `RegistroDiarioEntity`.
 - **DAOs:** `UsuarioDao`, `AlimentoDao`, `RecetaDao`, `RegistroDiarioDao`.
 - **API Remote:** `FatSecretApiService` con Proxy Ktor.
 
@@ -29,7 +29,7 @@ El proyecto sigue una arquitectura **Clean Architecture** estricta, asegurando q
 
 ## 3. Capacidades de la Aplicación (Funcionalidades)
 1.  **Arquitectura Profesional:** Desacoplamiento total entre UI y Lógica de Negocio.
-2.  **Gestión de Usuario:** Registro, Login (persistencia de sesión), cierre de sesión y **configuración de objetivos nutricionales personalizados**.
+2.  **Gestión de Usuario:** Registro, Login (persistencia de sesión), cierre de sesión, **eliminación segura de perfil con confirmación de contraseña** y **configuración de objetivos nutricionales personalizados**.
 3.  **Búsqueda e Inteligencia Nutricional:** Búsqueda en API externa y guardado automático en catálogo local.
 4.  **Recetario Avanzado:** Cálculo automático de macros por 100g y soporte multimedia.
 5.  **Registro Diario y Diario de Consumo (Historial):**

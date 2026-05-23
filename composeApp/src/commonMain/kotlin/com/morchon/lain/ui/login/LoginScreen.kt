@@ -49,7 +49,6 @@ fun LoginScreen(
         alEscribirContrasena = { viewModel.alCambiarContrasena(it) },
         alPulsarLogin = { viewModel.hacerLogin() },
         alSeleccionarUsuario = { viewModel.seleccionarUsuario(it) },
-        alEliminarUsuario = { viewModel.eliminarUsuario(it) },
         alPulsarRegistrar = alNavegarAlRegistro
     )
 }
@@ -61,7 +60,6 @@ fun ContenidoLogin(
     alEscribirContrasena: (String) -> Unit,
     alPulsarLogin: () -> Unit,
     alSeleccionarUsuario: (Usuario) -> Unit,
-    alEliminarUsuario: (Usuario) -> Unit,
     alPulsarRegistrar: () -> Unit
 ) {
     Surface(
@@ -229,7 +227,6 @@ fun LoginScreenPreview() {
             alEscribirContrasena = {},
             alPulsarLogin = {},
             alSeleccionarUsuario = {},
-            alEliminarUsuario = {},
             alPulsarRegistrar = {}
         )
     }

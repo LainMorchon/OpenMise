@@ -27,7 +27,7 @@ El esquema consta de 7 tablas normalizadas.
 * **Composición de Recetas:** Relación 1:1 entre `Alimento` y `Detalle_Receta`.
 
 **Tablas Principales (Entities):**
-1. `Usuario`: id, email, hash_contrasena, objetivos_nutricionales.
+1. `Usuario`: id, nombre, email, contrasena, objetivos_nutricionales, is_active.
 2. `Alimento`: id, nombre, origen, kcal_100g, proteinas_100g, carbohidratos_100g, grasas_100g.
 3. `Detalle_Receta`: alimento_id (PK/FK), descripcion, pasos_preparacion.
 4. `Ingrediente_Receta`: receta_id, alimento_base_id, cantidad_gramos.
@@ -76,6 +76,6 @@ Controlado mediante Use Cases interactuando con las entidades y repositorios.
 ---
 
 ## 5. CAPA DE PRESENTACIÓN (UI)
-* **Dashboard (`Home`)**: Resumen visual rápido del día con progreso de calorías y macros.
+* **Dashboard (`Home`)**: Resumen visual rápido del día con progreso de calorías y macros. Incluye gestión de perfil y eliminación segura de cuenta mediante validación de contraseña.
 * **Diario (`Historial`)**: Gestión granular de consumos pasados y presentes, con navegación temporal y resumen de nutrientes.
 * **Planes**: Sistema de gestión de plantillas y aplicación por lotes.

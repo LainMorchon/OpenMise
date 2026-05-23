@@ -33,9 +33,9 @@ val domainModule = module {
 
     // --- USUARIO ---
     factory { ObtenerUsuariosUseCase(get()) }
-    factory { LoginUseCase(get()) }
-    factory { RegistrarUsuarioUseCase(get()) }
-    factory { EliminarUsuarioUseCase(get()) }
+    factory { LoginUseCase(get(), get()) }
+    factory { RegistrarUsuarioUseCase(get(), get()) }
+    factory { EliminarUsuarioUseCase(get(), get()) }
     factory { ObtenerUsuarioActivoUseCase(get()) }
     factory { CerrarSesionUseCase(get()) }
     factory { ActualizarObjetivosUseCase(get()) }

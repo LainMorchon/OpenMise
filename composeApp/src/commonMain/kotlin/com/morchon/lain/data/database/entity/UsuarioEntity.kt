@@ -10,7 +10,7 @@ data class UsuarioEntity (
     @PrimaryKey val id: String,
     val nombre: String,
     val email: String,
-    val contrasena: String, // Añadido campo contraseña
+    val hash_contrasena: String, // Almacena la contraseña hasheada
     val is_active: Boolean, // Flag para la sesión actual
     val kcal_objetivo: Int,
     val proteinas_objetivo: Int,
@@ -24,7 +24,7 @@ fun UsuarioEntity.aDominio(): Usuario {
         id = id,
         nombre = nombre,
         email = email,
-        contrasena = contrasena,
+        contrasena = hash_contrasena,
         estaLogeado = is_active,
         objetivos = ObjetivosNutricionales(
             kcal = kcal_objetivo,
@@ -41,7 +41,7 @@ fun Usuario.aEntity(): UsuarioEntity {
         id = id,
         nombre = nombre,
         email = email,
-        contrasena = contrasena,
+        hash_contrasena = contrasena,
         is_active = estaLogeado,
         kcal_objetivo = objetivos.kcal,
         proteinas_objetivo = objetivos.proteinas,

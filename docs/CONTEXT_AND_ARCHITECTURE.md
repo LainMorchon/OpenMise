@@ -29,7 +29,7 @@ Clean Architecture organizada en `composeApp/src/commonMain/kotlin/com/morchon/l
     - `ItemPlan`: Contiene `indiceDia` (0 para diario, 1-7 para semanal).
     - `RegistroDiario`: Representa un consumo realizado, almacenando valores nutricionales históricos.
 - **`usecase/`**: 
-    - **Registro**: `ObtenerRegistrosDiariosUseCase`, `EliminarRegistroUseCase`, `RegistrarConsumoUseCase`, `ObtenerProgresoDiarioUseCase`.
+    - **Registro/Perfil**: `ObtenerRegistrosDiariosUseCase`, `EliminarRegistroUseCase`, `RegistrarConsumoUseCase`, `ObtenerProgresoDiarioUseCase`, `EliminarUsuarioUseCase` (con validación de seguridad).
     - **Planes**: `AplicarPlanUseCase` (con filtrado inteligente por día de la semana) y `GuardarPlanUseCase`.
 
 ### 🔵 Capa de Datos (`data/`)
@@ -59,6 +59,8 @@ Clean Architecture organizada en `composeApp/src/commonMain/kotlin/com/morchon/l
 ---
 
 ## 5. Estructura de Base de Datos (Room)
+- **Versión Actual**: 8 (Migración destructiva habilitada).
+- `Usuario`: (id, nombre, email, contrasena, objetivos_nutricionales, is_active).
 - `Plan`: (id, usuario_id, nombre, tipo).
 - `Item_Plan`: (id, plan_id, alimento_id, cantidad_gramos, momento_comida, indice_dia).
 - `Registro_Diario`: Log con macros históricos.

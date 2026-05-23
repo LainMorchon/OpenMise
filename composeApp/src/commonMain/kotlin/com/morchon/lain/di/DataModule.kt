@@ -13,6 +13,8 @@ import com.morchon.lain.data.repository.PlanRepositoryImpl
 import com.morchon.lain.domain.repository.AlimentoRepository
 import com.morchon.lain.domain.repository.PlanRepository
 import com.morchon.lain.domain.repository.RegistroDiarioRepository
+import com.morchon.lain.data.security.KryptoPasswordCipherImpl
+import com.morchon.lain.domain.security.PasswordCipher
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
@@ -50,6 +52,9 @@ val dataModule = module {
 
     // Repositorio de Alimentos (Búsqueda API)
     single<AlimentoRepository> { AlimentoRepositoryImpl(get(), get()) }
+
+    // --- SEGURIDAD ---
+    single<PasswordCipher> { KryptoPasswordCipherImpl() }
 
     // --- USUARIO ---
     // 1. Proveemos el DAO de Usuario

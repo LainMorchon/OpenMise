@@ -8,6 +8,7 @@
 
 ### 🟢 domain/ (Reglas de Negocio)
 * **`model/`**: Entidades puras.
+    * `Usuario.kt`: Incluye campo `contrasena` para persistencia y validación.
     * `Plan.kt`: Define `PlanType` (DIA_UNICO, SEMANAL).
     * `ItemPlan.kt`: Entidad atómica de un plan con `indiceDia`.
 
@@ -18,7 +19,8 @@
 ### 🟡 ui/ (Presentación - Compose Multiplatform)
 * **`navigation/`**: Gestión de rutas. En ViewModels, se utiliza `SavedStateHandle` para recuperar IDs de navegación en KMP.
 * **Features**:
-    * `ui/home/`: Dashboard principal con resumen de progreso diario (kcal y macros).
+    * `ui/home/`: Dashboard principal con resumen de progreso diario (kcal y macros). Incluye gestión de sesión y eliminación segura de cuenta con confirmación de contraseña.
+    * `ui/login/`: Pantalla de acceso y selección rápida de perfil.
     * `ui/diario/`: Historial de consumo con navegación por fechas, agrupación por momentos del día y resumen de macronutrientes.
     * `ui/planes/editar/`: Implementa lógica de filtrado por día, búsqueda de alimentos y sistema de plantillas (copia profunda de items entre planes).
 
